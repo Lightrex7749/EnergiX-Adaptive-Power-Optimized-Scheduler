@@ -24,33 +24,33 @@ A comprehensive web-based CPU scheduling simulator demonstrating **6 scheduling 
 
 ### Prerequisites
 - Python 3.11+
-- Node.js 18+ / Yarn
-- MongoDB (running on localhost:27017)
+- Node.js 18+ / npm or Yarn
 
 ### Installation & Running
 
 #### 1. Backend Setup
 ```bash
-cd /app/backend
+cd backend
 
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Start FastAPI server (via supervisor or manually)
-# Supervisor automatically runs: uvicorn server:app --host 0.0.0.0 --port 8001 --reload
-
-# OR manually:
+# Start FastAPI server
 uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 #### 2. Frontend Setup
 ```bash
-cd /app/frontend
+cd frontend
 
 # Install Node dependencies
+npm install
+# OR
 yarn install
 
 # Start React development server
+npm start
+# OR
 yarn start
 ```
 
@@ -64,7 +64,7 @@ yarn start
 ## 📁 Project Structure
 
 ```
-/app/
+EnergiX-Adaptive-Power-Optimized-Scheduler/
 ├── backend/
 │   ├── server.py                    # FastAPI server with all scheduling endpoints
 │   ├── algorithms.py                # Traditional scheduling algorithms (FCFS, SJF, RR, Priority)
@@ -376,20 +376,17 @@ curl -X POST http://localhost:8001/api/compare \
 # Check if backend is running
 curl http://localhost:8001/api/health
 
-# Check backend logs
-tail -f /var/log/supervisor/backend.err.log
-
-# Restart backend
-sudo supervisorctl restart backend
+# If not running, start it manually
+cd backend
+uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 ### Issue: Frontend not loading
 ```bash
-# Check frontend status
-sudo supervisorctl status frontend
-
-# Restart frontend
-sudo supervisorctl restart frontend
+# Stop the current frontend process (Ctrl+C)
+# Then restart it
+cd frontend
+npm start
 ```
 
 ### Issue: Charts not displaying
