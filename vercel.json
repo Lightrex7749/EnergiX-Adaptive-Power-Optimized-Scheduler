@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
+  "buildCommand": "cd frontend && yarn install && yarn build",
   "outputDirectory": "frontend/build",
   "routes": [
     {
