@@ -4,7 +4,7 @@
  */
 
 // Backend URL configuration for standalone HTML
-const API_BASE_URL = 'https://eco-sched-engine.preview.emergentagent.com';
+const API_BASE_URL = 'https://scheduler-app-9.preview.emergentagent.com';
 
 const API = {
     /**

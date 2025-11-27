@@ -396,7 +396,7 @@ yarn start
 **Solution:**
 Check `/app/frontend/public/js/scheduler-api.js`:
 ```javascript
-const API_BASE_URL = 'https://eco-sched-engine.preview.emergentagent.com';
+const API_BASE_URL = 'https://scheduler-app-9.preview.emergentagent.com';
 ```
 
 ### Issue: Results not showing
