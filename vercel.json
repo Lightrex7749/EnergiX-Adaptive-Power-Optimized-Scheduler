@@ -4,7 +4,20 @@
   "outputDirectory": "frontend/build",
   "routes": [
     {
-      "handle": "filesystem"
+      "src": "/scheduler-index.html",
+      "dest": "/scheduler-index.html"
+    },
+    {
+      "src": "/css/(.*)",
+      "dest": "/css/$1"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "/js/$1"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
     },
     {
       "src": "/(.*)",
