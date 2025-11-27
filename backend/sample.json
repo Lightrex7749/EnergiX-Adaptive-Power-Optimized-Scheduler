@@ -1,0 +1,46 @@
+{
+  "sample_1": {
+    "name": "Basic Test Case",
+    "processes": [
+      {"pid": 1, "arrival": 0, "burst": 5, "priority": 2},
+      {"pid": 2, "arrival": 1, "burst": 3, "priority": 1},
+      {"pid": 3, "arrival": 2, "burst": 8, "priority": 3},
+      {"pid": 4, "arrival": 3, "burst": 6, "priority": 2}
+    ],
+    "quantum": 2
+  },
+  "sample_2": {
+    "name": "Mixed Workload",
+    "processes": [
+      {"pid": 1, "arrival": 0, "burst": 10, "priority": 3},
+      {"pid": 2, "arrival": 1, "burst": 2, "priority": 1},
+      {"pid": 3, "arrival": 2, "burst": 1, "priority": 2},
+      {"pid": 4, "arrival": 3, "burst": 5, "priority": 1},
+      {"pid": 5, "arrival": 4, "burst": 3, "priority": 2}
+    ],
+    "quantum": 3
+  },
+  "sample_3": {
+    "name": "Energy-Aware Test",
+    "processes": [
+      {"pid": 1, "arrival": 0, "burst": 3, "priority": 1},
+      {"pid": 2, "arrival": 0, "burst": 9, "priority": 2},
+      {"pid": 3, "arrival": 1, "burst": 2, "priority": 1},
+      {"pid": 4, "arrival": 2, "burst": 12, "priority": 3},
+      {"pid": 5, "arrival": 3, "burst": 4, "priority": 2},
+      {"pid": 6, "arrival": 4, "burst": 1, "priority": 1}
+    ],
+    "quantum": 2,
+    "threshold": 5
+  },
+  "sample_4": {
+    "name": "High Context Switch",
+    "processes": [
+      {"pid": 1, "arrival": 0, "burst": 8, "priority": 2},
+      {"pid": 2, "arrival": 1, "burst": 4, "priority": 1},
+      {"pid": 3, "arrival": 2, "burst": 9, "priority": 3},
+      {"pid": 4, "arrival": 3, "burst": 5, "priority": 1}
+    ],
+    "quantum": 1
+  }
+}

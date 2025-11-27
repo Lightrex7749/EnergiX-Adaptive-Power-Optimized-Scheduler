@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Scheduling Simulator - Energy-Efficient Algorithms</title>
+    <link rel="stylesheet" href="/css/scheduler-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header" data-testid="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microchip"></i>
+                    <span>CPU Scheduler</span>
+                </div>
+                <h1 data-testid="main-title">Energy-Efficient CPU Scheduling Simulator</h1>
+                <p class="subtitle">Compare scheduling algorithms with adaptive DVFS energy modeling</p>
+            </div>
+        </header>
+
+        <nav class="nav-tabs" data-testid="nav-tabs">
+            <button class="tab-btn active" data-tab="input" data-testid="input-tab">
+                <i class="fas fa-edit"></i> Input Processes
+            </button>
+            <button class="tab-btn" data-tab="results" data-testid="results-tab">
+                <i class="fas fa-chart-line"></i> Results
+            </button>
+            <button class="tab-btn" data-tab="energy" data-testid="energy-tab">
+                <i class="fas fa-bolt"></i> Energy Analysis
+            </button>
+            <button class="tab-btn" data-tab="compare" data-testid="compare-tab">
+                <i class="fas fa-balance-scale"></i> Compare
+            </button>
+        </nav>
+
+        <!-- Input Tab -->
+        <div class="tab-content active" data-content="input">
+            <div class="card" data-testid="input-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-cog"></i> Configure Simulation</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="algorithm">Scheduling Algorithm</label>
+                            <select id="algorithm" data-testid="algorithm-select">
+                                <option value="fcfs">FCFS (First Come First Serve)</option>
+                                <option value="sjf">SJF Non-Preemptive</option>
+                                <option value="sjf_preemptive">SJF Preemptive (SRTF)</option>
+                                <option value="round_robin">Round Robin</option>
+                                <option value="priority">Priority Scheduling</option>
+                                <option value="eah" selected>Energy-Aware Hybrid (EAH)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="quantum-group">
+                            <label for="quantum">Time Quantum (for Round Robin)</label>
+                            <input type="number" id="quantum" value="2" min="1" data-testid="quantum-input">
+                        </div>
+
+                        <div class="form-group" id="threshold-group">
+                            <label for="threshold">Task Threshold (for EAH, leave blank for auto)</label>
+                            <input type="number" id="threshold" placeholder="Auto" data-testid="threshold-input">
+                        </div>
+                    </div>
+
+                    <div class="process-table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-list"></i> Process List</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary" onclick="loadSample()" data-testid="load-sample-btn">
+                                    <i class="fas fa-download"></i> Load Sample
+                                </button>
+                                <button class="btn btn-secondary" onclick="addProcess()" data-testid="add-process-btn">
+                                    <i class="fas fa-plus"></i> Add Process
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table id="processTable" data-testid="process-table">
+                                <thead>
+                                    <tr>
+                                        <th>Process ID</th>
+                                        <th>Arrival Time</th>
+                                        <th>Burst Time</th>
+                                        <th>Priority</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="processTableBody">
+                                    <!-- Rows will be added dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="runScheduler()" data-testid="run-btn">
+                            <i class="fas fa-play"></i> Run Scheduler
+                        </button>
+                        <button class="btn btn-success" onclick="compareAll()" data-testid="compare-all-btn">
+                            <i class="fas fa-balance-scale"></i> Compare All Algorithms
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearProcesses()" data-testid="clear-btn">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Tab -->
+        <div class="tab-content" data-content="results">
+            <div class="card" data-testid="results-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-bar"></i> Scheduling Results</h2>
+                    <button class="btn btn-secondary" onclick="exportResults()" data-testid="export-btn">
+                        <i class="fas fa-file-export"></i> Export JSON
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="resultsContent" data-testid="results-content">
+                        <div class="empty-state">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Run a scheduler to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energy Tab -->
+        <div class="tab-content" data-content="energy">
+            <div class="card" data-testid="energy-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-bolt"></i> Energy Analysis (DVFS)</h2>
+                </div>
+                <div class="card-body">
+                    <div id="energyContent" data-testid="energy-content">
+                        <div class="empty-state">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Run a scheduler to see energy analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compare Tab -->
+        <div class="tab-content" data-content="compare">
+            <div class="card" data-testid="compare-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-balance-scale"></i> Algorithm Comparison</h2>
+                </div>
+                <div class="card-body">
+                    <div id="compareContent" data-testid="compare-content">
+                        <div class="empty-state">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Use "Compare All Algorithms" button to see comparison</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Energy-Efficient CPU Scheduling Algorithm for Mobile & Embedded Systems</p>
+            <p>Academic Project - 2025</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/scheduler-api.js"></script>
+    <script src="/js/scheduler-gantt.js"></script>
+    <script src="/js/scheduler-charts.js"></script>
+    <script src="/js/scheduler-main.js"></script>
+</body>
+</html>
