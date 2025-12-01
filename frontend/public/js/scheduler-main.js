@@ -167,100 +167,135 @@ function getProcesses() {
 }
 
 /**
- * Sample Workloads - Each designed to showcase a specific algorithm's strength
+ * Sample Workloads - 10 strategically designed scenarios where different algorithms win
  */
 const sampleWorkloads = {
-    light: {
-        name: 'Default Mix',
-        description: 'General test case with varied arrival times and bursts',
-        processes: [
-            { pid: 1, arrival: 0, burst: 8, priority: 2 },
-            { pid: 2, arrival: 1, burst: 4, priority: 3 },
-            { pid: 3, arrival: 2, burst: 9, priority: 1 },
-            { pid: 4, arrival: 3, burst: 5, priority: 2 }
-        ]
-    },
-    medium: {
-        name: 'Long Jobs First - FCFS Wins',
-        description: 'Processes arrive in optimal order for FCFS - no reordering needed',
-        processes: [
-            { pid: 1, arrival: 0, burst: 3, priority: 2 },
-            { pid: 2, arrival: 1, burst: 6, priority: 2 },
-            { pid: 3, arrival: 2, burst: 9, priority: 2 },
-            { pid: 4, arrival: 3, burst: 12, priority: 2 }
-        ]
-    },
-    heavy: {
-        name: 'Shortest First - SJF Wins',
-        description: 'Mix of very short and very long jobs - SJF minimizes waiting dramatically',
-        processes: [
-            { pid: 1, arrival: 0, burst: 20, priority: 2 },
-            { pid: 2, arrival: 0, burst: 1, priority: 2 },
-            { pid: 3, arrival: 0, burst: 15, priority: 2 },
-            { pid: 4, arrival: 0, burst: 2, priority: 2 },
-            { pid: 5, arrival: 1, burst: 18, priority: 2 },
-            { pid: 6, arrival: 1, burst: 1, priority: 2 }
-        ]
-    },
-    mixed: {
-        name: 'Urgent Tasks - Priority Wins',
-        description: 'Critical high-priority tasks must preempt low-priority background work',
-        processes: [
-            { pid: 1, arrival: 0, burst: 8, priority: 5 },
-            { pid: 2, arrival: 0, burst: 12, priority: 5 },
-            { pid: 3, arrival: 1, burst: 2, priority: 1 },
-            { pid: 4, arrival: 2, burst: 4, priority: 1 },
-            { pid: 5, arrival: 3, burst: 3, priority: 1 },
-            { pid: 6, arrival: 4, burst: 10, priority: 4 }
-        ]
-    },
-    io_intensive: {
-        name: 'Preemptive Advantage - SRTF Wins',
-        description: 'Long job interrupted by short jobs - preemption saves huge waiting time',
-        processes: [
-            { pid: 1, arrival: 0, burst: 10, priority: 2 },
-            { pid: 2, arrival: 2, burst: 1, priority: 2 },
-            { pid: 3, arrival: 3, burst: 1, priority: 2 },
-            { pid: 4, arrival: 4, burst: 1, priority: 2 },
-            { pid: 5, arrival: 5, burst: 1, priority: 2 },
-            { pid: 6, arrival: 6, burst: 1, priority: 2 }
-        ]
-    },
-    cpu_intensive: {
-        name: 'Energy Saver - EAH Wins',
-        description: 'Mix of short and long tasks - EAH hybrid approach minimizes energy with fewer switches',
-        processes: [
-            { pid: 1, arrival: 0, burst: 2, priority: 2 },
-            { pid: 2, arrival: 0, burst: 18, priority: 2 },
-            { pid: 3, arrival: 1, burst: 3, priority: 2 },
-            { pid: 4, arrival: 2, burst: 20, priority: 2 },
-            { pid: 5, arrival: 3, burst: 1, priority: 2 },
-            { pid: 6, arrival: 4, burst: 15, priority: 2 }
-        ]
-    },
-    realtime: {
-        name: 'Time Slice Fairness - RR Wins',
-        description: 'Short equal bursts arriving continuously - Round Robin provides best average response',
+    fcfs1: {
+        name: 'Staggered Arrivals - FCFS Wins',
+        description: 'Arrivals are naturally ordered, no reordering benefits',
         processes: [
             { pid: 1, arrival: 0, burst: 5, priority: 2 },
+            { pid: 2, arrival: 3, burst: 4, priority: 2 },
+            { pid: 3, arrival: 6, burst: 2, priority: 2 }
+        ]
+    },
+    sjf1: {
+        name: 'All Short Jobs Together - SJF Wins',
+        description: 'All arrive at once, shortest burst first minimizes waiting',
+        processes: [
+            { pid: 1, arrival: 0, burst: 6, priority: 2 },
+            { pid: 2, arrival: 0, burst: 2, priority: 2 },
+            { pid: 3, arrival: 0, burst: 1, priority: 2 },
+            { pid: 4, arrival: 0, burst: 3, priority: 2 }
+        ]
+    },
+    srtf1: {
+        name: 'Late Short Job - SRTF Wins',
+        description: 'Short job arrives during long job execution - preemption helps',
+        processes: [
+            { pid: 1, arrival: 0, burst: 8, priority: 2 },
+            { pid: 2, arrival: 2, burst: 1, priority: 2 },
+            { pid: 3, arrival: 3, burst: 2, priority: 2 }
+        ]
+    },
+    rr1: {
+        name: 'Similar-Sized Processes - RR Wins',
+        description: 'Fair CPU sharing for balanced workload',
+        processes: [
+            { pid: 1, arrival: 0, burst: 6, priority: 2 },
             { pid: 2, arrival: 0, burst: 5, priority: 2 },
-            { pid: 3, arrival: 1, burst: 5, priority: 2 },
-            { pid: 4, arrival: 1, burst: 5, priority: 2 },
-            { pid: 5, arrival: 2, burst: 5, priority: 2 },
-            { pid: 6, arrival: 2, burst: 5, priority: 2 }
+            { pid: 3, arrival: 0, burst: 7, priority: 2 },
+            { pid: 4, arrival: 0, burst: 4, priority: 2 }
+        ]
+    },
+    priority1: {
+        name: 'Strong Priority Separation - Priority Wins',
+        description: 'Urgent high-priority task needs immediate execution',
+        processes: [
+            { pid: 1, arrival: 0, burst: 8, priority: 4 },
+            { pid: 2, arrival: 0, burst: 3, priority: 1 },
+            { pid: 3, arrival: 0, burst: 5, priority: 2 }
+        ]
+    },
+    eah1: {
+        name: 'Short+Long Mix - EAH Wins',
+        description: 'Perfect hybrid scenario: short jobs SJF, long jobs FCFS',
+        processes: [
+            { pid: 1, arrival: 0, burst: 1, priority: 2 },
+            { pid: 2, arrival: 0, burst: 2, priority: 2 },
+            { pid: 3, arrival: 0, burst: 3, priority: 2 },
+            { pid: 4, arrival: 0, burst: 10, priority: 2 },
+            { pid: 5, arrival: 0, burst: 12, priority: 2 }
+        ]
+    },
+    rr2: {
+        name: 'SJF Starvation - RR Wins',
+        description: 'Long job starved by SJF, RR maintains fairness',
+        processes: [
+            { pid: 1, arrival: 0, burst: 20, priority: 2 },
+            { pid: 2, arrival: 5, burst: 2, priority: 2 },
+            { pid: 3, arrival: 6, burst: 2, priority: 2 }
+        ]
+    },
+    priority2: {
+        name: 'Emergency Interrupt - Priority Wins',
+        description: 'Urgent task preempts long-running process',
+        processes: [
+            { pid: 1, arrival: 0, burst: 15, priority: 3 },
+            { pid: 2, arrival: 4, burst: 4, priority: 1 }
+        ]
+    },
+    fcfs2: {
+        name: 'Long Job First - FCFS Wins',
+        description: 'Long job completes first, minimal overhead',
+        processes: [
+            { pid: 1, arrival: 0, burst: 20, priority: 2 },
+            { pid: 2, arrival: 1, burst: 2, priority: 2 },
+            { pid: 3, arrival: 2, burst: 2, priority: 2 }
+        ]
+    },
+    eah2: {
+        name: 'High Energy Cost - EAH Wins',
+        description: 'Preemption avoidance saves DVFS energy',
+        processes: [
+            { pid: 1, arrival: 0, burst: 12, priority: 2 },
+            { pid: 2, arrival: 0, burst: 10, priority: 2 },
+            { pid: 3, arrival: 0, burst: 1, priority: 2 },
+            { pid: 4, arrival: 0, burst: 1, priority: 2 },
+            { pid: 5, arrival: 0, burst: 1, priority: 2 }
         ]
     }
 };
 
 function loadSelectedSample() {
     const select = document.getElementById('sampleSelect');
-    const sampleKey = select.value;
+    const optionValue = select.value;
     
-    if (!sampleKey) {
+    if (!optionValue) {
         return;
     }
     
+    // Map dropdown values to sample keys
+    const sampleKeyMap = {
+        'fcfs1': 'fcfs_staggered',
+        'sjf1': 'sjf_short_together',
+        'srtf1': 'srtf_late_arrival',
+        'rr1': 'rr_similar_size',
+        'priority1': 'priority_urgent',
+        'eah1': 'eah_mixed',
+        'rr2': 'rr_fair',
+        'priority2': 'priority_preemptive',
+        'fcfs2': 'fcfs_long_first',
+        'eah2': 'eah_energy'
+    };
+    
+    const sampleKey = sampleKeyMap[optionValue];
     const sample = sampleWorkloads[sampleKey];
+    
+    if (!sample) {
+        showAlert(`Sample not found: ${optionValue}`, 'error');
+        return;
+    }
     
     clearProcesses();
     processIdCounter = 1;

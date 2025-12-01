@@ -71,16 +71,19 @@
                         <div class="table-header">
                             <h3><i class="fas fa-list"></i> Process List</h3>
                             <div class="table-actions">
-                                <div class="form-group" style="margin: 0; min-width: 280px;">
+                                <div class="form-group" style="margin: 0; min-width: 320px;">
                                     <select id="sampleSelect" onchange="loadSelectedSample()" data-testid="sample-select" style="margin: 0;">
                                         <option value="">-- Load Sample Workload --</option>
-                                        <option value="light">📊 Default Mix</option>
-                                        <option value="medium">📋 Long Jobs First (FCFS)</option>
-                                        <option value="heavy">⚡ Shortest First (SJF)</option>
-                                        <option value="mixed">🎯 Urgent Tasks (Priority)</option>
-                                        <option value="io_intensive">💨 Preemptive Advantage (SRTF)</option>
-                                        <option value="cpu_intensive">🔋 Energy Saver (EAH)</option>
-                                        <option value="realtime">🔄 Time Slice Fairness (RR)</option>
+                                        <option value="fcfs1">1️⃣ Staggered Arrivals (FCFS)</option>
+                                        <option value="sjf1">2️⃣ All Short Jobs (SJF)</option>
+                                        <option value="srtf1">3️⃣ Late Short Job (SRTF)</option>
+                                        <option value="rr1">4️⃣ Similar-Sized (RR)</option>
+                                        <option value="priority1">5️⃣ Priority Separation (Priority)</option>
+                                        <option value="eah1">6️⃣ Short+Long Mix (EAH)</option>
+                                        <option value="rr2">7️⃣ Prevent Starvation (RR)</option>
+                                        <option value="priority2">8️⃣ Emergency Interrupt (Priority)</option>
+                                        <option value="fcfs2">9️⃣ Long Job First (FCFS)</option>
+                                        <option value="eah2">🔟 High Energy Cost (EAH)</option>
                                     </select>
                                 </div>
                                 <button class="btn btn-secondary" onclick="addProcess()" data-testid="add-process-btn">
