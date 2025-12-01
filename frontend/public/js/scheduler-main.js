@@ -544,18 +544,20 @@ function determineBestAlgorithms(comparisonData) {
         algo.context_switches < min.context_switches ? algo : min
     );
     
-    // Calculate overall best using weighted scoring
-    // Energy: 40%, Turnaround: 25%, Waiting: 25%, Switches: 10%
+    // Calculate overall best using balanced scoring with penalties
+    // Energy: 35%, Turnaround: 20%, Waiting: 20%, Switches: 25%
+    // Higher weight on switches to penalize excessive context switching
     const scores = validAlgos.map(algo => {
         const normalizedEnergy = parseFloat(algo.total_energy) / parseFloat(bestEnergy.total_energy);
         const normalizedTurnaround = parseFloat(algo.avg_turnaround) / parseFloat(bestTurnaround.avg_turnaround);
         const normalizedWaiting = parseFloat(algo.avg_waiting) / parseFloat(bestWaiting.avg_waiting);
-        const normalizedSwitches = algo.context_switches / bestSwitches.context_switches;
+        const normalizedSwitches = algo.context_switches / (bestSwitches.context_switches || 1);
         
-        const score = (normalizedEnergy * 0.4) + 
-                     (normalizedTurnaround * 0.25) + 
-                     (normalizedWaiting * 0.25) + 
-                     (normalizedSwitches * 0.1);
+        // Composite score with balanced weights
+        const score = (normalizedEnergy * 0.35) + 
+                     (normalizedTurnaround * 0.20) + 
+                     (normalizedWaiting * 0.20) + 
+                     (normalizedSwitches * 0.25);
         
         return { algo, score };
     });
@@ -564,21 +566,40 @@ function determineBestAlgorithms(comparisonData) {
         current.score < best.score ? current : best
     ).algo;
     
-    // Generate reason for overall best
-    let reason = 'Achieves the best balance across all metrics. ';
+    // Generate reason for overall best with detailed analysis
+    let reason = '';
+    let strengths = [];
+    
     if (overall.algorithm === bestEnergy.algorithm) {
-        reason += 'Provides lowest energy consumption (' + overall.total_energy + ' units), ';
+        strengths.push('lowest energy consumption (' + overall.total_energy + ' units)');
     }
     if (overall.algorithm === bestTurnaround.algorithm) {
-        reason += 'fastest completion time (' + overall.avg_turnaround + '), ';
+        strengths.push('fastest average turnaround time (' + overall.avg_turnaround + ' time units)');
     }
     if (overall.algorithm === bestWaiting.algorithm) {
-        reason += 'minimal waiting time (' + overall.avg_waiting + '), ';
+        strengths.push('minimal average waiting time (' + overall.avg_waiting + ' time units)');
     }
     if (overall.algorithm === bestSwitches.algorithm) {
-        reason += 'fewest context switches (' + overall.context_switches + '), ';
+        strengths.push('fewest context switches (' + overall.context_switches + ')');
     }
-    reason += 'making it ideal for energy-efficient mobile and embedded systems.';
+    
+    if (strengths.length > 0) {
+        reason = 'This algorithm excels with ' + strengths.join(', ') + '. ';
+    } else {
+        reason = 'This algorithm achieves the best overall balance across all performance metrics. ';
+    }
+    
+    // Add context-specific recommendation
+    const energyRank = validAlgos.filter(a => parseFloat(a.total_energy) < parseFloat(overall.total_energy)).length + 1;
+    const switchesRank = validAlgos.filter(a => a.context_switches < overall.context_switches).length + 1;
+    
+    if (energyRank === 1 && switchesRank === 1) {
+        reason += 'Optimal for battery-powered and mobile devices where energy efficiency is critical.';
+    } else if (overall.algorithm === bestTurnaround.algorithm || overall.algorithm === bestWaiting.algorithm) {
+        reason += 'Best choice when minimizing response time and maximizing throughput are priorities.';
+    } else {
+        reason += 'Provides excellent balance between performance and resource efficiency for general-purpose systems.';
+    }
     
     return {
         overall: {
