@@ -112,6 +112,7 @@ function addProcessRow(process) {
     
     row.innerHTML = `
         <td><input type="number" value="${process.pid}" readonly style="background: var(--bg-secondary);"></td>
+        <td><input type="text" value="${process.name || ''}" placeholder="Optional" class="name-input" data-testid="name-${process.pid}"></td>
         <td><input type="number" value="${process.arrival}" min="0" class="arrival-input" data-testid="arrival-${process.pid}"></td>
         <td><input type="number" value="${process.burst}" min="1" class="burst-input" data-testid="burst-${process.pid}"></td>
         <td><input type="number" value="${process.priority}" min="0" class="priority-input" data-testid="priority-${process.pid}"></td>
@@ -156,11 +157,17 @@ function getProcesses() {
     
     rows.forEach(row => {
         const pid = parseInt(row.querySelector('input[readonly]').value);
+        const name = row.querySelector('.name-input')?.value?.trim() || null;
         const arrival = parseInt(row.querySelector('.arrival-input').value);
         const burst = parseInt(row.querySelector('.burst-input').value);
         const priority = parseInt(row.querySelector('.priority-input').value);
         
-        processes.push({ pid, arrival, burst, priority });
+        const process = { pid, arrival, burst, priority };
+        if (name) {
+            process.name = name; // Only include name if not empty
+        }
+        
+        processes.push(process);
     });
     
     return processes;
@@ -1932,5 +1939,227 @@ function applyRecommendedAlgorithm(algoName) {
         document.getElementById('algorithm').value = algoValue;
         closePredictionWizard();
         showAlert(`Algorithm set to: ${algoName}`, 'success');
+    }
+}
+
+/**
+ * ============================================================================
+ * FEATURE 9: SYSTEM PROCESS IMPORT
+ * ============================================================================
+ */
+
+function openSystemProcessImporter() {
+    const modal = document.createElement('div');
+    modal.id = 'systemProcessModal';
+    modal.className = 'modal-overlay';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <div style="padding: 2rem; border-bottom: 2px solid var(--border-color);">
+                <h2 style="margin: 0; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-download"></i>
+                    Import System Processes
+                </h2>
+                <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">
+                    Import real system processes from your machine into the scheduler
+                </p>
+            </div>
+            
+            <div style="padding: 2rem;">
+                <div style="background: var(--info-bg, #e3f2fd); border-left: 4px solid var(--info, #2196F3); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <i class="fas fa-info-circle" style="color: var(--info, #2196F3); margin-top: 0.2rem;"></i>
+                        <div style="flex: 1; font-size: 0.9rem; line-height: 1.6;">
+                            <strong>How to capture system processes:</strong>
+                            <ol style="margin: 0.5rem 0 0 1rem; padding: 0;">
+                                <li>Install Python package: <code style="background: rgba(0,0,0,0.1); padding: 0.2rem 0.4rem; border-radius: 3px;">pip install psutil</code></li>
+                                <li>Run: <code style="background: rgba(0,0,0,0.1); padding: 0.2rem 0.4rem; border-radius: 3px;">python utils/process_importer.py --format json</code></li>
+                                <li>Copy the JSON output and paste below</li>
+                            </ol>
+                            <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem;">
+                                📖 See <code>utils/README_PROCESS_IMPORT.md</code> for detailed instructions
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                        Paste JSON Output:
+                    </label>
+                    <textarea 
+                        id="systemProcessInput" 
+                        placeholder='{"timestamp": "2025-12-01T...", "processes": [...]}'
+                        style="width: 100%; height: 200px; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.85rem; background: var(--input-bg, #fff); color: var(--text-primary); resize: vertical;"
+                    ></textarea>
+                    <div id="importValidation" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
+                </div>
+                
+                <div style="background: var(--warning-bg, #fff3e0); border-left: 4px solid var(--warning, #ff9800); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning, #ff9800); margin-top: 0.2rem;"></i>
+                        <div style="flex: 1; font-size: 0.85rem; line-height: 1.6;">
+                            <strong>Note:</strong> System processes are mapped to scheduler parameters as follows:
+                            <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
+                                <li><strong>Arrival Time:</strong> Set to 0 (all processes already running)</li>
+                                <li><strong>Burst Time:</strong> Estimated from CPU usage (1-11 units)</li>
+                                <li><strong>Priority:</strong> Mapped from process nice value (1-5)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="importPreview" style="display: none; margin-bottom: 1.5rem;">
+                    <h4 style="margin: 0 0 0.75rem 0; color: var(--text-primary);">
+                        <i class="fas fa-eye"></i> Preview (First 5 processes)
+                    </h4>
+                    <div id="importPreviewContent" style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; padding: 0.75rem; background: var(--input-bg, #fff); font-size: 0.85rem; font-family: monospace;"></div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="closeSystemProcessImporter()" class="btn btn-secondary" style="flex: 1;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button onclick="validateSystemProcessInput()" class="btn btn-info" style="flex: 1;">
+                        <i class="fas fa-check-circle"></i> Validate
+                    </button>
+                    <button onclick="importSystemProcesses()" class="btn btn-success" style="flex: 1;" id="importBtn" disabled>
+                        <i class="fas fa-download"></i> Import
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Auto-validate on paste
+    const textarea = document.getElementById('systemProcessInput');
+    textarea.addEventListener('paste', () => {
+        setTimeout(validateSystemProcessInput, 100);
+    });
+}
+
+function closeSystemProcessImporter() {
+    const modal = document.getElementById('systemProcessModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function validateSystemProcessInput() {
+    const textarea = document.getElementById('systemProcessInput');
+    const validationDiv = document.getElementById('importValidation');
+    const importBtn = document.getElementById('importBtn');
+    const previewDiv = document.getElementById('importPreview');
+    const previewContent = document.getElementById('importPreviewContent');
+    
+    const input = textarea.value.trim();
+    
+    if (!input) {
+        validationDiv.innerHTML = '<span style="color: var(--text-secondary);">⚠️ Please paste JSON output from process_importer.py</span>';
+        importBtn.disabled = true;
+        previewDiv.style.display = 'none';
+        return false;
+    }
+    
+    try {
+        const data = JSON.parse(input);
+        
+        // Validate structure
+        if (!data.processes || !Array.isArray(data.processes)) {
+            throw new Error('Invalid format: "processes" array not found');
+        }
+        
+        if (data.processes.length === 0) {
+            throw new Error('No processes found in data');
+        }
+        
+        // Validate process structure
+        const requiredFields = ['pid', 'arrival', 'burst', 'priority'];
+        const firstProcess = data.processes[0];
+        const missingFields = requiredFields.filter(field => !(field in firstProcess));
+        
+        if (missingFields.length > 0) {
+            throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+        }
+        
+        // Validation passed
+        validationDiv.innerHTML = `<span style="color: var(--success, #4caf50);"><i class="fas fa-check-circle"></i> Valid! Found ${data.processes.length} processes captured at ${data.timestamp || 'unknown time'}</span>`;
+        importBtn.disabled = false;
+        
+        // Show preview
+        const previewProcs = data.processes.slice(0, 5);
+        previewContent.innerHTML = previewProcs.map(p => 
+            `P${p.pid} | ${p.name || 'unnamed'} | Arrival: ${p.arrival} | Burst: ${p.burst} | Priority: ${p.priority}`
+        ).join('\n');
+        previewDiv.style.display = 'block';
+        
+        return true;
+        
+    } catch (error) {
+        validationDiv.innerHTML = `<span style="color: var(--danger, #f44336);"><i class="fas fa-exclamation-circle"></i> Error: ${error.message}</span>`;
+        importBtn.disabled = true;
+        previewDiv.style.display = 'none';
+        return false;
+    }
+}
+
+function importSystemProcesses() {
+    const textarea = document.getElementById('systemProcessInput');
+    
+    if (!validateSystemProcessInput()) {
+        return;
+    }
+    
+    try {
+        const data = JSON.parse(textarea.value.trim());
+        const processes = data.processes;
+        
+        // Clear existing processes
+        const confirmation = confirm(
+            `This will replace all current processes with ${processes.length} imported system processes.\n\n` +
+            `Continue?`
+        );
+        
+        if (!confirmation) {
+            return;
+        }
+        
+        clearProcesses();
+        
+        // Import processes
+        let imported = 0;
+        processes.forEach((proc, index) => {
+            try {
+                const processData = {
+                    pid: index + 1, // Sequential numbering
+                    arrival: proc.arrival || 0,
+                    burst: Math.max(1, parseInt(proc.burst) || 1),
+                    priority: Math.max(1, Math.min(5, parseInt(proc.priority) || 3)),
+                    name: proc.name || `Process-${proc.pid}`
+                };
+                
+                addProcessRow(processData);
+                imported++;
+                
+            } catch (error) {
+                console.warn(`Failed to import process ${proc.pid}:`, error);
+            }
+        });
+        
+        processIdCounter = imported + 1;
+        
+        closeSystemProcessImporter();
+        showAlert(
+            `✅ Successfully imported ${imported} system processes!\n\n` +
+            `Captured: ${data.timestamp || 'Unknown time'}\n` +
+            `Note: You can adjust burst times and priorities as needed.`,
+            'success'
+        );
+        
+    } catch (error) {
+        showAlert(`Import failed: ${error.message}`, 'error');
     }
 }

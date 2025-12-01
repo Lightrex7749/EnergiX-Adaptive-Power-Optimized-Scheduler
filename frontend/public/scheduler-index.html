@@ -103,6 +103,9 @@
                                     <i class="fas fa-file-csv"></i> Batch CSV Upload
                                 </button>
                                 <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCSVUpload(event)">
+                                <button class="btn btn-info" onclick="openSystemProcessImporter()" style="background: var(--info); border-color: var(--info);">
+                                    <i class="fas fa-download"></i> Import System Processes
+                                </button>
                             </div>
                         </div>
 
@@ -111,6 +114,7 @@
                                 <thead>
                                     <tr>
                                         <th>Process ID</th>
+                                        <th>Name/Label</th>
                                         <th>Arrival Time</th>
                                         <th>Burst Time</th>
                                         <th>Priority</th>
