@@ -74,13 +74,13 @@
                                 <div class="form-group" style="margin: 0; min-width: 280px;">
                                     <select id="sampleSelect" onchange="loadSelectedSample()" data-testid="sample-select" style="margin: 0;">
                                         <option value="">-- Load Sample Workload --</option>
-                                        <option value="light">📊 Balanced Workload</option>
-                                        <option value="medium">🔄 Interactive System (RR)</option>
-                                        <option value="heavy">⚡ Mixed Jobs (SJF)</option>
-                                        <option value="mixed">🎯 Priority-Based (Priority)</option>
-                                        <option value="io_intensive">💨 Responsive System (SRTF)</option>
-                                        <option value="cpu_intensive">🔋 Energy-Critical (EAH)</option>
-                                        <option value="realtime">📋 Simple Sequential (FCFS)</option>
+                                        <option value="light">📊 Default Mix</option>
+                                        <option value="medium">📋 Long Jobs First (FCFS)</option>
+                                        <option value="heavy">⚡ Shortest First (SJF)</option>
+                                        <option value="mixed">🎯 Urgent Tasks (Priority)</option>
+                                        <option value="io_intensive">💨 Preemptive Advantage (SRTF)</option>
+                                        <option value="cpu_intensive">🔋 Energy Saver (EAH)</option>
+                                        <option value="realtime">🔄 Time Slice Fairness (RR)</option>
                                     </select>
                                 </div>
                                 <button class="btn btn-secondary" onclick="addProcess()" data-testid="add-process-btn">
