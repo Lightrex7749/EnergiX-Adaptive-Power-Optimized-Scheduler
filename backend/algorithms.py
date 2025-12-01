@@ -518,8 +518,8 @@ def calculate_advanced_metrics(result: Dict[str, Any], processes_input: List[Dic
             'fairness_index': 0
         }
     
-    # CPU Utilization
-    total_burst = sum(p['burst'] for p in processes)
+    # CPU Utilization - use original input for burst times
+    total_burst = sum(p.get('burst', 0) for p in processes_input)
     cpu_utilization = round((total_burst / completion_time) * 100, 2) if completion_time > 0 else 0
     
     # Throughput (processes per time unit)
@@ -528,9 +528,11 @@ def calculate_advanced_metrics(result: Dict[str, Any], processes_input: List[Dic
     # Response Time (time from arrival to first execution)
     response_times = []
     for p in processes:
+        pid = p.get('pid')
+        arrival = p.get('arrival', 0)
         # Find first execution time from gantt
-        first_exec = next((g['start'] for g in gantt if g['pid'] == p['pid']), p['arrival'])
-        response_time = first_exec - p['arrival']
+        first_exec = next((g['start'] for g in gantt if g.get('pid') == pid), arrival)
+        response_time = first_exec - arrival
         response_times.append(response_time)
     
     avg_response_time = round(sum(response_times) / len(response_times), 2) if response_times else 0
@@ -538,7 +540,7 @@ def calculate_advanced_metrics(result: Dict[str, Any], processes_input: List[Dic
     # Fairness Index (Jain's Fairness Index for turnaround times)
     # Formula: (sum of x_i)^2 / (n * sum of x_i^2)
     # Where x_i is the turnaround time of process i
-    turnaround_times = [p['turnaround'] for p in processes]
+    turnaround_times = [p.get('turnaround', 0) for p in processes]
     sum_tat = sum(turnaround_times)
     sum_tat_sq = sum(t * t for t in turnaround_times)
     n = len(turnaround_times)
