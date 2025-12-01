@@ -209,13 +209,13 @@ const sampleWorkloads = {
     },
     rr1: {
         name: 'Interactive Fairness Test',
-        description: 'Multiple equal-burst interactive processes arriving simultaneously',
+        description: 'Long first process + short late arrivals - RR prevents starvation',
         processes: [
-            { pid: 1, arrival: 0, burst: 10, priority: 3 },
-            { pid: 2, arrival: 0, burst: 10, priority: 3 },
-            { pid: 3, arrival: 0, burst: 10, priority: 3 },
-            { pid: 4, arrival: 0, burst: 10, priority: 3 },
-            { pid: 5, arrival: 0, burst: 10, priority: 3 }
+            { pid: 1, arrival: 0, burst: 30, priority: 3 },
+            { pid: 2, arrival: 2, burst: 4, priority: 3 },
+            { pid: 3, arrival: 4, burst: 4, priority: 3 },
+            { pid: 4, arrival: 6, burst: 4, priority: 3 },
+            { pid: 5, arrival: 8, burst: 4, priority: 3 }
         ]
     },
     priority1: {
@@ -243,13 +243,13 @@ const sampleWorkloads = {
     },
     rr2: {
         name: 'Convoy Effect Test',
-        description: 'One long process with multiple short ones - tests time-slicing benefit',
+        description: 'Multiple varying burst times - RR provides balanced response',
         processes: [
-            { pid: 1, arrival: 0, burst: 20, priority: 3 },
-            { pid: 2, arrival: 0, burst: 4, priority: 3 },
-            { pid: 3, arrival: 0, burst: 4, priority: 3 },
+            { pid: 1, arrival: 0, burst: 15, priority: 3 },
+            { pid: 2, arrival: 0, burst: 8, priority: 3 },
+            { pid: 3, arrival: 0, burst: 6, priority: 3 },
             { pid: 4, arrival: 0, burst: 4, priority: 3 },
-            { pid: 5, arrival: 0, burst: 4, priority: 3 }
+            { pid: 5, arrival: 0, burst: 3, priority: 3 }
         ]
     },
     priority2: {
@@ -905,13 +905,13 @@ function determineBestAlgorithms(comparisonData) {
     // Adaptive weights based on which metrics show significant differences
     let weights = { completion: 0.15, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.15 };
     
-    // If energy varies significantly (>20%), increase energy weight
-    if (energyVariance > 0.20) {
-        weights = { completion: 0.10, turnaround: 0.20, waiting: 0.20, energy: 0.35, switches: 0.15 };
+    // If energy varies significantly (>7%), increase energy weight dramatically
+    if (energyVariance > 0.07) {
+        weights = { completion: 0.10, turnaround: 0.15, waiting: 0.15, energy: 0.45, switches: 0.15 };
     }
     // If context switches vary significantly (>50%), penalize high switches more
     else if (switchVariance > 0.50) {
-        weights = { completion: 0.15, turnaround: 0.30, waiting: 0.25, energy: 0.10, switches: 0.20 };
+        weights = { completion: 0.10, turnaround: 0.35, waiting: 0.30, energy: 0.10, switches: 0.15 };
     }
     // Default balanced weights
     else {
