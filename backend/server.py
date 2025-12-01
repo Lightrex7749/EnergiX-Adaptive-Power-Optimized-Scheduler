@@ -6,6 +6,7 @@ Merged from Flask app.py to work with FastAPI and supervisor configuration
 
 from fastapi import FastAPI, APIRouter, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -363,6 +364,11 @@ async def run_multicore(request: MulticoreRequest):
 
 # Include the router in the main app
 app.include_router(api_router)
+
+# Mount static files for frontend
+frontend_path = Path(__file__).parent.parent / "frontend" / "public"
+if frontend_path.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="static")
 
 # CORS Configuration
 app.add_middleware(

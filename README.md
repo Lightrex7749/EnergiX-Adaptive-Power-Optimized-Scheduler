@@ -32,40 +32,23 @@ A comprehensive web-based CPU scheduling simulator demonstrating **6 scheduling 
 
 ### Prerequisites
 - Python 3.11+
-- Node.js 18+ / npm or Yarn
 
 ### Installation & Running
 
-#### 1. Backend Setup
+#### 1. Backend Setup (Serves Both API + Frontend)
 ```bash
 cd backend
 
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Start FastAPI server
-uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+# Start FastAPI server (serves everything)
+uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-#### 2. Frontend Setup
-```bash
-cd frontend
-
-# Install Node dependencies
-npm install
-# OR
-yarn install
-
-# Start React development server
-npm start
-# OR
-yarn start
-```
-
-#### 3. Access Application
-- **Landing Page**: http://localhost:3000
-- **Simulator**: http://localhost:3000/scheduler-index.html
-- **Backend API**: http://localhost:8001/api/health
+#### 2. Access Application
+- **Simulator**: http://localhost:8000/scheduler-index.html
+- **Backend API**: http://localhost:8000/api/health
 
 ---
 
@@ -198,7 +181,7 @@ Where:
 
 ### Base URL
 ```
-http://localhost:8001/api
+http://localhost:8000/api
 ```
 
 ### Endpoints
@@ -311,10 +294,10 @@ Content-Type: application/json
 ### Backend API Testing
 ```bash
 # Test health endpoint
-curl http://localhost:8001/api/health
+curl http://localhost:8000/api/health
 
 # Test EAH algorithm
-curl -X POST http://localhost:8001/api/all \
+curl -X POST http://localhost:8000/api/all \
   -H "Content-Type: application/json" \
   -d '{
     "algorithm": "eah",
@@ -325,7 +308,7 @@ curl -X POST http://localhost:8001/api/all \
   }'
 
 # Compare all algorithms
-curl -X POST http://localhost:8001/api/compare \
+curl -X POST http://localhost:8000/api/compare \
   -H "Content-Type: application/json" \
   -d '{
     "processes": [
@@ -336,7 +319,7 @@ curl -X POST http://localhost:8001/api/compare \
 ```
 
 ### Frontend Testing
-1. Open http://localhost:3000/scheduler-index.html
+1. Open http://localhost:8000/scheduler-index.html
 2. Use default processes or load sample data
 3. Test each algorithm individually
 4. Use "Compare All Algorithms" to verify all work
@@ -382,20 +365,17 @@ curl -X POST http://localhost:8001/api/compare \
 ### Issue: Backend not responding
 ```bash
 # Check if backend is running
-curl http://localhost:8001/api/health
+curl http://localhost:8000/api/health
 
 # If not running, start it manually
 cd backend
-uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Issue: Frontend not loading
-```bash
-# Stop the current frontend process (Ctrl+C)
-# Then restart it
-cd frontend
-npm start
-```
+- Frontend is served automatically by the backend
+- Just restart the backend server (Ctrl+C, then uvicorn command again)
+- Access at http://localhost:8000/scheduler-index.html
 
 ### Issue: Charts not displaying
 - Ensure Chart.js CDN is accessible

@@ -22,12 +22,13 @@ This project implements and compares various CPU scheduling algorithms with a fo
 ┌─────────────────────────────────────────────┐
 │          Web-Based Simulator                │
 │         (HTML/CSS/JavaScript)               │
+│        (Served as Static Files)             │
 └────────────────┬────────────────────────────┘
                  │
                  │ REST API (HTTP/JSON)
                  │
 ┌────────────────┴────────────────────────────┐
-│          Flask Backend Server               │
+│         FastAPI Backend Server              │
 │        (Python 3.11+)                       │
 ├─────────────────────────────────────────────┤
 │  ┌─────────────────────────────────────┐   │
@@ -225,32 +226,19 @@ cd /app/backend
 # Install dependencies
 pip install -r requirements.txt
 
-# Run Flask server
-python app.py
+# Run FastAPI server
+uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 
-# Server runs on http://localhost:8001
+# Server runs on http://localhost:8000
 ```
 
-### Frontend Setup
+### Access the Simulator
 
-```bash
-# Navigate to frontend directory
-cd /app/frontend
-
-# Install dependencies
-yarn install
-
-# Start development server
-yarn start
-
-# Access at http://localhost:3000
-```
-
-### Direct Access to Simulator
+Frontend is served automatically by the backend server.
 
 Open browser and navigate to:
 ```
-http://localhost:3000/scheduler-index.html
+http://localhost:8000/scheduler-index.html
 ```
 
 ---
@@ -384,7 +372,7 @@ Export JSON data containing:
 ```
 /app/
 ├── backend/
-│   ├── app.py                        # Flask API server
+│   ├── server.py                     # FastAPI server
 │   ├── algorithms.py                 # Traditional scheduling algorithms
 │   ├── energy_aware_scheduler.py     # EAH algorithm & DVFS
 │   ├── requirements.txt              # Python dependencies

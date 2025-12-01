@@ -16,42 +16,31 @@
 
 ## 🚀 Quick Start
 
-### Option 1: Web Access (Recommended)
-The application is already running and accessible through your browser:
+### Local Setup
 
-1. **Landing Page**: `http://localhost:3000`
-2. **Simulator**: `http://localhost:3000/scheduler-index.html`
-
-### Option 2: Local Setup
-
-#### Backend Setup
+#### Start the Server (Serves Both API + Frontend)
 ```bash
-cd /app/backend
-python app.py
-# Server runs on http://localhost:8001
+cd backend
+uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+# Server runs on http://localhost:8000
 ```
 
-#### Frontend Setup
-```bash
-cd /app/frontend
-yarn start
-# Accessible at http://localhost:3000
-```
+#### Access the Application
+1. **Simulator**: `http://localhost:8000/scheduler-index.html`
+2. **API Docs**: `http://localhost:8000/docs` (FastAPI Swagger UI)
 
 ---
 
 ## 🌐 Accessing the Application
 
-### Step 1: Open the Landing Page
-Navigate to: `http://localhost:3000`
+### Access the Simulator
+Navigate to: `http://localhost:8000/scheduler-index.html`
 
 You'll see:
-- Project title and description
-- **"Launch Simulator"** button
-- Feature highlights
-
-### Step 2: Launch the Simulator
-Click **"Launch Simulator"** to access the main application.
+- Process input form
+- Algorithm selection
+- Configuration options
+- Sample workload buttons
 
 ---
 
@@ -299,14 +288,14 @@ Shows configuration:
 
 ### Base URL
 ```
-http://localhost:8001/api
+http://localhost:8000/api
 ```
 
 ### Endpoints
 
 #### 1. Health Check
 ```bash
-curl http://localhost:8001/api/health
+curl http://localhost:8000/api/health
 ```
 
 **Response:**
@@ -319,7 +308,7 @@ curl http://localhost:8001/api/health
 
 #### 2. Run Scheduler
 ```bash
-curl -X POST http://localhost:8001/api/all \
+curl -X POST http://localhost:8000/api/all \
   -H "Content-Type: application/json" \
   -d '{
     "algorithm": "eah",
@@ -336,7 +325,7 @@ curl -X POST http://localhost:8001/api/all \
 
 #### 3. Compare Algorithms
 ```bash
-curl -X POST http://localhost:8001/api/compare \
+curl -X POST http://localhost:8000/api/compare \
   -H "Content-Type: application/json" \
   -d '{
     "processes": [
@@ -372,7 +361,7 @@ tail -f /tmp/flask_app.log
 **Solution:**
 ```bash
 # Check frontend service
-curl http://localhost:3000
+curl http://localhost:8000
 
 # Restart if needed
 cd /app/frontend
