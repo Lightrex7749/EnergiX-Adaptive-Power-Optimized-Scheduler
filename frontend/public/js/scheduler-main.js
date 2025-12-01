@@ -626,8 +626,14 @@ function displayComparison(comparisonData) {
             const containerId = `gantt-${algoKey}`;
             html += `
                 <div class="gantt-section" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                    <h4 style="margin-bottom: 1rem; color: var(--text-primary);">${algo.algorithm}</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="margin: 0; color: var(--text-primary);">${algo.algorithm}</h4>
+                        <button class="btn btn-secondary btn-sm animate-btn" data-algo="${algoKey}" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                            <i class="fas fa-play-circle"></i> Animate
+                        </button>
+                    </div>
                     <div id="${containerId}"></div>
+                    <div id="animation-${algoKey}" style="display: none; margin-top: 1rem;"></div>
                 </div>
             `;
         }
@@ -642,6 +648,9 @@ function displayComparison(comparisonData) {
     
     container.innerHTML = html;
     
+    // Store comparison data globally for animation
+    window.currentComparisonData = comparisonData;
+    
     setTimeout(() => {
         renderComparisonChart(comparisonData, 'comparisonChart');
         
@@ -653,7 +662,44 @@ function displayComparison(comparisonData) {
                 renderGanttChart(algo.gantt, containerId);
             }
         });
+        
+        // Attach animation button listeners
+        document.querySelectorAll('.animate-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const algoKey = e.currentTarget.getAttribute('data-algo');
+                toggleAnimation(algoKey);
+            });
+        });
     }, 100);
+}
+
+/**
+ * Toggle Animation View for an Algorithm
+ */
+function toggleAnimation(algoKey) {
+    const animationContainer = document.getElementById(`animation-${algoKey}`);
+    const ganttContainer = document.getElementById(`gantt-${algoKey}`);
+    const btn = document.querySelector(`.animate-btn[data-algo="${algoKey}"]`);
+    
+    if (!animationContainer || !btn) return;
+    
+    const algo = window.currentComparisonData[algoKey];
+    if (!algo || !algo.gantt || !algo.processes) return;
+    
+    if (animationContainer.style.display === 'none') {
+        // Show animation
+        animationContainer.style.display = 'block';
+        ganttContainer.style.display = 'none';
+        btn.innerHTML = '<i class="fas fa-chart-bar"></i> Static View';
+        
+        // Initialize animation
+        initializeAnimation(`animation-${algoKey}`, algo.gantt, algo.processes);
+    } else {
+        // Hide animation
+        animationContainer.style.display = 'none';
+        ganttContainer.style.display = 'block';
+        btn.innerHTML = '<i class="fas fa-play-circle"></i> Animate';
+    }
 }
 
 /**
