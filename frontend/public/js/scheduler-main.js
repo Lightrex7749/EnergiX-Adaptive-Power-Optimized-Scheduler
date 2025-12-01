@@ -209,50 +209,58 @@ const sampleWorkloads = {
     },
     rr1: {
         name: 'Interactive Fairness - RR Wins',
-        description: 'Equal bursts with staggered arrivals favor time-slicing',
+        description: 'Multiple equal-length processes arriving closely - RR provides best fairness',
         processes: [
-            { pid: 1, arrival: 0, burst: 14, priority: 3 },
-            { pid: 2, arrival: 1, burst: 14, priority: 3 },
-            { pid: 3, arrival: 2, burst: 14, priority: 3 }
+            { pid: 1, arrival: 0, burst: 8, priority: 3 },
+            { pid: 2, arrival: 0, burst: 8, priority: 3 },
+            { pid: 3, arrival: 0, burst: 8, priority: 3 },
+            { pid: 4, arrival: 1, burst: 8, priority: 3 },
+            { pid: 5, arrival: 1, burst: 8, priority: 3 }
         ]
     },
     priority1: {
         name: 'Urgent Override - Priority Wins',
-        description: 'Critical high-priority task dominates scheduling',
+        description: 'Critical high-priority tasks must execute first regardless of burst time',
         processes: [
-            { pid: 1, arrival: 0, burst: 18, priority: 5 },
-            { pid: 2, arrival: 0, burst: 3, priority: 1 },
-            { pid: 3, arrival: 0, burst: 15, priority: 5 },
-            { pid: 4, arrival: 0, burst: 9, priority: 3 }
+            { pid: 1, arrival: 0, burst: 10, priority: 5 },  // Low priority, long
+            { pid: 2, arrival: 0, burst: 3, priority: 1 },   // High priority, short
+            { pid: 3, arrival: 0, burst: 12, priority: 4 },  // Low priority, long
+            { pid: 4, arrival: 0, burst: 4, priority: 2 },   // High priority, short
+            { pid: 5, arrival: 0, burst: 8, priority: 3 }    // Medium priority
         ]
     },
     eah1: {
-        name: 'Hybrid Threshold - EAH Wins',
-        description: 'Strategic mix crosses threshold for optimal hybrid scheduling',
+        name: 'Energy Critical - EAH Wins',
+        description: 'Mix of short and long tasks where energy-aware DVFS provides significant savings',
         processes: [
-            { pid: 1, arrival: 0, burst: 2, priority: 3 },
-            { pid: 2, arrival: 0, burst: 4, priority: 3 },
-            { pid: 3, arrival: 0, burst: 7, priority: 3 },
-            { pid: 4, arrival: 0, burst: 18, priority: 3 },
-            { pid: 5, arrival: 0, burst: 20, priority: 3 }
+            { pid: 1, arrival: 0, burst: 2, priority: 3 },   // Short - low frequency
+            { pid: 2, arrival: 0, burst: 3, priority: 3 },   // Short - low frequency
+            { pid: 3, arrival: 0, burst: 15, priority: 3 },  // Long - high frequency
+            { pid: 4, arrival: 0, burst: 18, priority: 3 },  // Long - high frequency
+            { pid: 5, arrival: 0, burst: 22, priority: 3 },  // Very long - high frequency
+            { pid: 6, arrival: 2, burst: 1, priority: 3 }    // Short arrival - low frequency
         ]
     },
     rr2: {
-        name: 'Prevent Starvation - RR Wins',
-        description: 'Continuous arrivals where RR maintains fairness best',
+        name: 'Time-Sharing Optimal - RR Wins',
+        description: 'CPU-bound processes with similar bursts benefit from time-slicing',
         processes: [
-            { pid: 1, arrival: 0, burst: 22, priority: 3 },
-            { pid: 2, arrival: 2, burst: 6, priority: 3 },
-            { pid: 3, arrival: 4, burst: 6, priority: 3 }
+            { pid: 1, arrival: 0, burst: 10, priority: 3 },
+            { pid: 2, arrival: 0, burst: 10, priority: 3 },
+            { pid: 3, arrival: 1, burst: 10, priority: 3 },
+            { pid: 4, arrival: 1, burst: 10, priority: 3 },
+            { pid: 5, arrival: 2, burst: 10, priority: 3 }
         ]
     },
     priority2: {
-        name: 'Emergency Task - Priority Wins',
-        description: 'Extreme priority gap with urgent short task',
+        name: 'Mission Critical - Priority Wins',
+        description: 'System with clear importance hierarchy where urgent tasks must preempt',
         processes: [
-            { pid: 1, arrival: 0, burst: 16, priority: 5 },
-            { pid: 2, arrival: 0, burst: 2, priority: 1 },
-            { pid: 3, arrival: 0, burst: 12, priority: 4 }
+            { pid: 1, arrival: 0, burst: 8, priority: 5 },   // Low priority
+            { pid: 2, arrival: 0, burst: 2, priority: 1 },   // Critical - must run first
+            { pid: 3, arrival: 0, burst: 10, priority: 4 },  // Low priority
+            { pid: 4, arrival: 1, burst: 3, priority: 1 },   // Critical - late arrival
+            { pid: 5, arrival: 0, burst: 6, priority: 2 }    // High priority
         ]
     },
     fcfs2: {
@@ -265,15 +273,16 @@ const sampleWorkloads = {
         ]
     },
     eah2: {
-        name: 'Energy Efficiency - EAH Wins',
-        description: 'Large task mix where hybrid approach minimizes energy',
+        name: 'Battery Powered - EAH Wins',
+        description: 'Mobile device scenario where energy savings are paramount',
         processes: [
-            { pid: 1, arrival: 0, burst: 1, priority: 3 },
-            { pid: 2, arrival: 0, burst: 3, priority: 3 },
-            { pid: 3, arrival: 0, burst: 4, priority: 3 },
-            { pid: 4, arrival: 0, burst: 14, priority: 3 },
-            { pid: 5, arrival: 0, burst: 18, priority: 3 },
-            { pid: 6, arrival: 0, burst: 20, priority: 3 }
+            { pid: 1, arrival: 0, burst: 1, priority: 3 },   // Quick task
+            { pid: 2, arrival: 0, burst: 2, priority: 3 },   // Quick task
+            { pid: 3, arrival: 0, burst: 3, priority: 3 },   // Quick task
+            { pid: 4, arrival: 0, burst: 12, priority: 3 },  // Background sync
+            { pid: 5, arrival: 0, burst: 16, priority: 3 },  // Video processing
+            { pid: 6, arrival: 0, burst: 20, priority: 3 },  // Large download
+            { pid: 7, arrival: 1, burst: 1, priority: 3 }    // UI interaction
         ]
     }
 };
