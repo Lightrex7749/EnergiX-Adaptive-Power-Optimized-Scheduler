@@ -881,16 +881,42 @@ function determineBestAlgorithms(comparisonData) {
         parseFloat(algo.completion_time) < parseFloat(min.completion_time) ? algo : min
     );
     
-    // Calculate overall best with algorithm-specific weighted scoring
-    // Different algorithms optimize for different goals:
-    // - Time-based (FCFS, SJF, SRTF): Favor completion/turnaround/waiting (50% total)
-    // - Energy-based (EAH): Favor energy + low switches (40% total)
-    // - Fairness-based (RR): Penalize less for high switches, reward balanced turnaround
-    // - Priority-based: Reward respecting priority order (via turnaround of high-priority tasks)
+    // Adaptive scoring based on workload characteristics
+    // Analyze the results to determine what the workload emphasizes
     
-    // Use uniform weights for all algorithms - no bias!
-    // Lower normalized values are better (1.0 = best performance)
-    const weights = { completion: 0.20, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.10 };
+    // Calculate the variance/range of each metric to see which ones differ most
+    const energyValues = validAlgos.map(a => parseFloat(a.total_energy));
+    const switchValues = validAlgos.map(a => a.context_switches);
+    const turnaroundValues = validAlgos.map(a => parseFloat(a.avg_turnaround));
+    
+    const energyRange = Math.max(...energyValues) - Math.min(...energyValues);
+    const switchRange = Math.max(...switchValues) - Math.min(...switchValues);
+    const turnaroundRange = Math.max(...turnaroundValues) - Math.min(...turnaroundValues);
+    
+    const maxEnergyValue = Math.max(...energyValues);
+    const maxSwitchValue = Math.max(...switchValues);
+    const maxTurnaroundValue = Math.max(...turnaroundValues);
+    
+    // Calculate relative variance (range / max) for each metric
+    const energyVariance = maxEnergyValue > 0 ? energyRange / maxEnergyValue : 0;
+    const switchVariance = maxSwitchValue > 0 ? switchRange / maxSwitchValue : 0;
+    const turnaroundVariance = maxTurnaroundValue > 0 ? turnaroundRange / maxTurnaroundValue : 0;
+    
+    // Adaptive weights based on which metrics show significant differences
+    let weights = { completion: 0.15, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.15 };
+    
+    // If energy varies significantly (>20%), increase energy weight
+    if (energyVariance > 0.20) {
+        weights = { completion: 0.10, turnaround: 0.20, waiting: 0.20, energy: 0.35, switches: 0.15 };
+    }
+    // If context switches vary significantly (>50%), penalize high switches more
+    else if (switchVariance > 0.50) {
+        weights = { completion: 0.15, turnaround: 0.30, waiting: 0.25, energy: 0.10, switches: 0.20 };
+    }
+    // Default balanced weights
+    else {
+        weights = { completion: 0.20, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.10 };
+    }
     
     const scores = validAlgos.map(algo => {
         const normalizedCompletion = parseFloat(algo.completion_time) / parseFloat(bestCompletion.completion_time);
@@ -1045,6 +1071,8 @@ function determineBestAlgorithms(comparisonData) {
         }
     };
     
+    console.log('⚖️ Adaptive Weights Used:', weights);
+    console.log('📈 Metric Variances:', { energy: energyVariance.toFixed(2), switches: switchVariance.toFixed(2), turnaround: turnaroundVariance.toFixed(2) });
     console.log('🏆 Best Algorithm Detection:', result.overall.name);
     console.log('📊 Score Breakdown:', scores.map(s => ({
         algo: s.algo.algorithm,
