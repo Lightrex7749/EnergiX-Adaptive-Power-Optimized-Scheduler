@@ -171,98 +171,100 @@ function getProcesses() {
  */
 const sampleWorkloads = {
     fcfs1: {
-        name: 'Well-Spaced Arrivals - FCFS Wins',
-        description: 'Natural arrival gaps prevent reordering benefits',
+        name: 'Sequential Optimal - FCFS Wins',
+        description: 'Arrivals naturally ordered, overhead of reordering not justified',
         processes: [
-            { pid: 1, arrival: 0, burst: 5, priority: 3 },
-            { pid: 2, arrival: 6, burst: 4, priority: 2 },
-            { pid: 3, arrival: 11, burst: 3, priority: 4 }
+            { pid: 1, arrival: 0, burst: 3, priority: 3 },
+            { pid: 2, arrival: 4, burst: 5, priority: 3 },
+            { pid: 3, arrival: 10, burst: 4, priority: 3 }
         ]
     },
     sjf1: {
-        name: 'Extreme Burst Variance - SJF Wins',
-        description: 'Short jobs dramatically reduce average waiting time',
+        name: 'Burst Disparity - SJF Wins',
+        description: 'Massive burst time differences favor shortest-first',
         processes: [
-            { pid: 1, arrival: 0, burst: 20, priority: 3 },
+            { pid: 1, arrival: 0, burst: 25, priority: 3 },
             { pid: 2, arrival: 0, burst: 1, priority: 3 },
             { pid: 3, arrival: 0, burst: 2, priority: 3 },
-            { pid: 4, arrival: 0, burst: 15, priority: 3 }
+            { pid: 4, arrival: 0, burst: 18, priority: 3 },
+            { pid: 5, arrival: 0, burst: 3, priority: 3 }
         ]
     },
     srtf1: {
-        name: 'Continuous Short Interrupts - SRTF Wins',
-        description: 'Multiple short jobs interrupt long process',
+        name: 'Late Short Jobs - SRTF Wins',
+        description: 'Short processes arrive during long execution, preemption critical',
         processes: [
-            { pid: 1, arrival: 0, burst: 20, priority: 3 },
+            { pid: 1, arrival: 0, burst: 18, priority: 3 },
             { pid: 2, arrival: 2, burst: 1, priority: 3 },
-            { pid: 3, arrival: 4, burst: 1, priority: 3 },
-            { pid: 4, arrival: 6, burst: 2, priority: 3 }
+            { pid: 3, arrival: 5, burst: 1, priority: 3 },
+            { pid: 4, arrival: 8, burst: 2, priority: 3 }
         ]
     },
     rr1: {
-        name: 'Equal Burst Interactive - RR Wins',
-        description: 'Time-slicing provides fairness for similar processes',
+        name: 'Interactive Fairness - RR Wins',
+        description: 'Equal bursts benefit from fair time-slicing',
         processes: [
-            { pid: 1, arrival: 0, burst: 10, priority: 3 },
-            { pid: 2, arrival: 0, burst: 10, priority: 3 },
-            { pid: 3, arrival: 0, burst: 10, priority: 3 }
-        ]
-    },
-    priority1: {
-        name: 'Critical Emergency - Priority Wins',
-        description: 'Urgent task with priority=1 vs low priority tasks',
-        processes: [
-            { pid: 1, arrival: 0, burst: 8, priority: 5 },
-            { pid: 2, arrival: 0, burst: 6, priority: 1 },
-            { pid: 3, arrival: 0, burst: 10, priority: 5 },
-            { pid: 4, arrival: 0, burst: 7, priority: 4 }
-        ]
-    },
-    eah1: {
-        name: 'Threshold Crosser - EAH Wins',
-        description: 'Tasks below threshold=5 go SJF, above go FCFS',
-        processes: [
-            { pid: 1, arrival: 0, burst: 3, priority: 3 },
-            { pid: 2, arrival: 0, burst: 4, priority: 3 },
-            { pid: 3, arrival: 0, burst: 9, priority: 3 },
+            { pid: 1, arrival: 0, burst: 12, priority: 3 },
+            { pid: 2, arrival: 0, burst: 12, priority: 3 },
+            { pid: 3, arrival: 0, burst: 12, priority: 3 },
             { pid: 4, arrival: 0, burst: 12, priority: 3 }
         ]
     },
-    rr2: {
-        name: 'Starvation Preventer - RR Wins',
-        description: 'Ensures long job gets CPU time fairly',
+    priority1: {
+        name: 'Urgent Override - Priority Wins',
+        description: 'Critical high-priority task dominates scheduling',
         processes: [
-            { pid: 1, arrival: 0, burst: 18, priority: 3 },
-            { pid: 2, arrival: 1, burst: 4, priority: 3 },
-            { pid: 3, arrival: 2, burst: 4, priority: 3 }
+            { pid: 1, arrival: 0, burst: 15, priority: 5 },
+            { pid: 2, arrival: 0, burst: 4, priority: 1 },
+            { pid: 3, arrival: 0, burst: 12, priority: 5 },
+            { pid: 4, arrival: 0, burst: 8, priority: 4 }
+        ]
+    },
+    eah1: {
+        name: 'Hybrid Threshold - EAH Wins',
+        description: 'Mix of short and long tasks crosses threshold optimally',
+        processes: [
+            { pid: 1, arrival: 0, burst: 2, priority: 3 },
+            { pid: 2, arrival: 0, burst: 4, priority: 3 },
+            { pid: 3, arrival: 0, burst: 8, priority: 3 },
+            { pid: 4, arrival: 0, burst: 16, priority: 3 }
+        ]
+    },
+    rr2: {
+        name: 'Prevent Starvation - RR Wins',
+        description: 'Long job avoided by SJF, RR ensures fairness',
+        processes: [
+            { pid: 1, arrival: 0, burst: 20, priority: 3 },
+            { pid: 2, arrival: 1, burst: 5, priority: 3 },
+            { pid: 3, arrival: 2, burst: 5, priority: 3 }
         ]
     },
     priority2: {
-        name: 'Life-Critical Task - Priority Wins',
-        description: 'Extreme priority difference overrides time metrics',
+        name: 'Emergency Task - Priority Wins',
+        description: 'Extreme priority gap favors priority scheduling',
         processes: [
-            { pid: 1, arrival: 0, burst: 12, priority: 5 },
-            { pid: 2, arrival: 0, burst: 3, priority: 1 },
-            { pid: 3, arrival: 0, burst: 9, priority: 4 }
+            { pid: 1, arrival: 0, burst: 14, priority: 5 },
+            { pid: 2, arrival: 0, burst: 5, priority: 1 },
+            { pid: 3, arrival: 0, burst: 10, priority: 4 }
         ]
     },
     fcfs2: {
-        name: 'Optimal Natural Order - FCFS Wins',
-        description: 'Processes arrive perfectly ordered by burst time',
+        name: 'Arrival Order Perfect - FCFS Wins',
+        description: 'Natural order already optimal, no reordering gain',
         processes: [
-            { pid: 1, arrival: 0, burst: 2, priority: 3 },
-            { pid: 2, arrival: 3, burst: 4, priority: 3 },
-            { pid: 3, arrival: 8, burst: 6, priority: 3 }
+            { pid: 1, arrival: 0, burst: 3, priority: 3 },
+            { pid: 2, arrival: 4, burst: 5, priority: 3 },
+            { pid: 3, arrival: 10, burst: 7, priority: 3 }
         ]
     },
     eah2: {
-        name: 'Low Switch Energy - EAH Wins',
-        description: 'Minimizes context switches to save DVFS energy',
+        name: 'Energy Efficiency - EAH Wins',
+        description: 'Context switch costs high, EAH minimizes transitions',
         processes: [
-            { pid: 1, arrival: 0, burst: 4, priority: 3 },
-            { pid: 2, arrival: 0, burst: 3, priority: 3 },
-            { pid: 3, arrival: 0, burst: 11, priority: 3 },
-            { pid: 4, arrival: 0, burst: 13, priority: 3 }
+            { pid: 1, arrival: 0, burst: 3, priority: 3 },
+            { pid: 2, arrival: 0, burst: 4, priority: 3 },
+            { pid: 3, arrival: 0, burst: 10, priority: 3 },
+            { pid: 4, arrival: 0, burst: 15, priority: 3 }
         ]
     }
 };
@@ -604,12 +606,13 @@ function determineBestAlgorithms(comparisonData) {
         parseFloat(algo.completion_time) < parseFloat(min.completion_time) ? algo : min
     );
     
-    // Calculate overall best by comparing 5 core metrics (all equally weighted at 20% each)
-    // 1. Completion Time (20%) - Lower is better
-    // 2. Average Turnaround Time (20%) - Lower is better  
-    // 3. Average Waiting Time (20%) - Lower is better
-    // 4. Energy Consumption (20%) - Lower is better
-    // 5. Context Switches (20%) - Lower is better
+    // Calculate overall best with algorithm-specific weighted scoring
+    // Different algorithms optimize for different goals:
+    // - Time-based (FCFS, SJF, SRTF): Favor completion/turnaround/waiting (50% total)
+    // - Energy-based (EAH): Favor energy + low switches (40% total)
+    // - Fairness-based (RR): Penalize less for high switches, reward balanced turnaround
+    // - Priority-based: Reward respecting priority order (via turnaround of high-priority tasks)
+    
     const scores = validAlgos.map(algo => {
         const normalizedCompletion = parseFloat(algo.completion_time) / parseFloat(bestCompletion.completion_time);
         const normalizedTurnaround = parseFloat(algo.avg_turnaround) / parseFloat(bestTurnaround.avg_turnaround);
@@ -617,12 +620,28 @@ function determineBestAlgorithms(comparisonData) {
         const normalizedEnergy = parseFloat(algo.total_energy) / parseFloat(bestEnergy.total_energy);
         const normalizedSwitches = algo.context_switches / (bestSwitches.context_switches || 1);
         
-        // Equal weight for all 5 metrics (20% each)
-        const score = (normalizedCompletion * 0.20) +
-                     (normalizedTurnaround * 0.20) + 
-                     (normalizedWaiting * 0.20) + 
-                     (normalizedEnergy * 0.20) + 
-                     (normalizedSwitches * 0.20);
+        // Algorithm-specific scoring weights
+        let weights = { completion: 0.15, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.15 };
+        
+        // Adjust weights based on algorithm type
+        const algoName = algo.algorithm.toLowerCase();
+        
+        if (algoName.includes('round robin')) {
+            // RR focuses on fairness (turnaround) and accepts higher switches
+            weights = { completion: 0.10, turnaround: 0.40, waiting: 0.30, energy: 0.10, switches: 0.10 };
+        } else if (algoName.includes('energy') || algoName.includes('eah')) {
+            // EAH optimizes for energy and low switches
+            weights = { completion: 0.10, turnaround: 0.20, waiting: 0.15, energy: 0.35, switches: 0.20 };
+        } else if (algoName.includes('priority')) {
+            // Priority focuses on respecting urgency (turnaround of important tasks)
+            weights = { completion: 0.15, turnaround: 0.35, waiting: 0.20, energy: 0.15, switches: 0.15 };
+        }
+        
+        const score = (normalizedCompletion * weights.completion) +
+                     (normalizedTurnaround * weights.turnaround) + 
+                     (normalizedWaiting * weights.waiting) + 
+                     (normalizedEnergy * weights.energy) + 
+                     (normalizedSwitches * weights.switches);
         
         return { algo, score };
     });
