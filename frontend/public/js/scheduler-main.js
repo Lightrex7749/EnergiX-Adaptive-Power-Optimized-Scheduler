@@ -159,91 +159,91 @@ function getProcesses() {
  */
 const sampleWorkloads = {
     light: {
-        name: 'Light Load',
-        description: 'Basic workload with 4 short processes',
+        name: 'Light Load - Favors FCFS',
+        description: 'Sequential arrivals with similar burst times - Best for FCFS',
         processes: [
             { pid: 1, arrival: 0, burst: 5, priority: 2 },
-            { pid: 2, arrival: 1, burst: 3, priority: 1 },
-            { pid: 3, arrival: 2, burst: 8, priority: 3 },
-            { pid: 4, arrival: 3, burst: 6, priority: 2 }
+            { pid: 2, arrival: 1, burst: 4, priority: 2 },
+            { pid: 3, arrival: 2, burst: 6, priority: 2 },
+            { pid: 4, arrival: 3, burst: 5, priority: 2 }
         ]
     },
     medium: {
-        name: 'Medium Load',
-        description: 'Balanced mix of short and long tasks',
+        name: 'Interactive Workload - Favors Round Robin',
+        description: 'Multiple processes arriving together - Best for Round Robin fairness',
         processes: [
-            { pid: 1, arrival: 0, burst: 3, priority: 1 },
-            { pid: 2, arrival: 0, burst: 9, priority: 2 },
-            { pid: 3, arrival: 1, burst: 2, priority: 1 },
-            { pid: 4, arrival: 2, burst: 12, priority: 3 },
-            { pid: 5, arrival: 3, burst: 4, priority: 2 },
-            { pid: 6, arrival: 4, burst: 1, priority: 1 }
+            { pid: 1, arrival: 0, burst: 10, priority: 2 },
+            { pid: 2, arrival: 0, burst: 8, priority: 2 },
+            { pid: 3, arrival: 0, burst: 12, priority: 2 },
+            { pid: 4, arrival: 1, burst: 9, priority: 2 },
+            { pid: 5, arrival: 1, burst: 11, priority: 2 },
+            { pid: 6, arrival: 2, burst: 7, priority: 2 }
         ]
     },
     heavy: {
-        name: 'Heavy Load',
-        description: 'High process count with varying burst times',
+        name: 'Mixed Burst Times - Favors SJF/SRTF',
+        description: 'Short and long tasks arriving close together - Best for SJF algorithms',
         processes: [
-            { pid: 1, arrival: 0, burst: 8, priority: 2 },
-            { pid: 2, arrival: 0, burst: 4, priority: 1 },
-            { pid: 3, arrival: 1, burst: 15, priority: 3 },
-            { pid: 4, arrival: 1, burst: 6, priority: 2 },
-            { pid: 5, arrival: 2, burst: 10, priority: 1 },
-            { pid: 6, arrival: 3, burst: 3, priority: 3 },
-            { pid: 7, arrival: 4, burst: 12, priority: 2 },
-            { pid: 8, arrival: 5, burst: 7, priority: 1 }
+            { pid: 1, arrival: 0, burst: 15, priority: 2 },
+            { pid: 2, arrival: 0, burst: 2, priority: 2 },
+            { pid: 3, arrival: 1, burst: 20, priority: 2 },
+            { pid: 4, arrival: 1, burst: 3, priority: 2 },
+            { pid: 5, arrival: 2, burst: 18, priority: 2 },
+            { pid: 6, arrival: 2, burst: 1, priority: 2 },
+            { pid: 7, arrival: 3, burst: 4, priority: 2 },
+            { pid: 8, arrival: 3, burst: 16, priority: 2 }
         ]
     },
     mixed: {
-        name: 'Mixed Workload',
-        description: 'Complex scenario with varied arrival times and priorities',
+        name: 'Priority-Critical Tasks - Favors Priority Scheduling',
+        description: 'Urgent high-priority tasks mixed with background jobs',
         processes: [
-            { pid: 1, arrival: 0, burst: 5, priority: 3 },
-            { pid: 2, arrival: 1, burst: 2, priority: 1 },
-            { pid: 3, arrival: 2, burst: 14, priority: 2 },
-            { pid: 4, arrival: 2, burst: 4, priority: 1 },
-            { pid: 5, arrival: 3, burst: 8, priority: 3 },
-            { pid: 6, arrival: 5, burst: 3, priority: 2 },
-            { pid: 7, arrival: 6, burst: 11, priority: 1 },
-            { pid: 8, arrival: 7, burst: 6, priority: 3 },
-            { pid: 9, arrival: 9, burst: 2, priority: 2 },
-            { pid: 10, arrival: 10, burst: 7, priority: 1 }
+            { pid: 1, arrival: 0, burst: 10, priority: 3 },
+            { pid: 2, arrival: 0, burst: 4, priority: 1 },
+            { pid: 3, arrival: 1, burst: 8, priority: 3 },
+            { pid: 4, arrival: 1, burst: 3, priority: 1 },
+            { pid: 5, arrival: 2, burst: 12, priority: 2 },
+            { pid: 6, arrival: 3, burst: 2, priority: 1 },
+            { pid: 7, arrival: 4, burst: 15, priority: 3 },
+            { pid: 8, arrival: 5, burst: 5, priority: 1 }
         ]
     },
     io_intensive: {
-        name: 'I/O Intensive',
-        description: 'Short CPU bursts simulating I/O-bound processes',
+        name: 'I/O Intensive - Favors SRTF',
+        description: 'Short bursts with frequent arrivals - Best for preemptive SJF',
         processes: [
-            { pid: 1, arrival: 0, burst: 2, priority: 1 },
-            { pid: 2, arrival: 1, burst: 1, priority: 1 },
-            { pid: 3, arrival: 2, burst: 3, priority: 2 },
-            { pid: 4, arrival: 3, burst: 2, priority: 1 },
-            { pid: 5, arrival: 4, burst: 1, priority: 1 },
-            { pid: 6, arrival: 5, burst: 4, priority: 2 }
+            { pid: 1, arrival: 0, burst: 3, priority: 2 },
+            { pid: 2, arrival: 1, burst: 1, priority: 2 },
+            { pid: 3, arrival: 2, burst: 2, priority: 2 },
+            { pid: 4, arrival: 3, burst: 1, priority: 2 },
+            { pid: 5, arrival: 4, burst: 3, priority: 2 },
+            { pid: 6, arrival: 5, burst: 2, priority: 2 },
+            { pid: 7, arrival: 6, burst: 1, priority: 2 },
+            { pid: 8, arrival: 7, burst: 2, priority: 2 }
         ]
     },
     cpu_intensive: {
-        name: 'CPU Intensive',
-        description: 'Long burst times for compute-heavy tasks',
+        name: 'CPU Bound - Favors EAH',
+        description: 'Long-running tasks with minimal context switches - Best for Energy-Aware Hybrid',
         processes: [
-            { pid: 1, arrival: 0, burst: 15, priority: 2 },
-            { pid: 2, arrival: 1, burst: 20, priority: 3 },
-            { pid: 3, arrival: 2, burst: 18, priority: 2 },
-            { pid: 4, arrival: 3, burst: 12, priority: 1 },
-            { pid: 5, arrival: 4, burst: 25, priority: 3 }
+            { pid: 1, arrival: 0, burst: 20, priority: 2 },
+            { pid: 2, arrival: 1, burst: 18, priority: 2 },
+            { pid: 3, arrival: 2, burst: 25, priority: 2 },
+            { pid: 4, arrival: 3, burst: 22, priority: 2 },
+            { pid: 5, arrival: 4, burst: 15, priority: 2 }
         ]
     },
     realtime: {
-        name: 'Real-Time Tasks',
-        description: 'High-priority tasks with tight deadlines',
+        name: 'Energy-Efficient Scenario - Favors EAH',
+        description: 'Mix of short and long tasks - Best for Energy-Aware Hybrid with DVFS',
         processes: [
-            { pid: 1, arrival: 0, burst: 4, priority: 1 },
-            { pid: 2, arrival: 1, burst: 6, priority: 1 },
-            { pid: 3, arrival: 2, burst: 3, priority: 2 },
-            { pid: 4, arrival: 3, burst: 8, priority: 1 },
-            { pid: 5, arrival: 4, burst: 5, priority: 2 },
-            { pid: 6, arrival: 5, burst: 2, priority: 1 },
-            { pid: 7, arrival: 6, burst: 7, priority: 3 }
+            { pid: 1, arrival: 0, burst: 3, priority: 2 },
+            { pid: 2, arrival: 0, burst: 15, priority: 2 },
+            { pid: 3, arrival: 1, burst: 2, priority: 2 },
+            { pid: 4, arrival: 2, burst: 18, priority: 2 },
+            { pid: 5, arrival: 3, burst: 4, priority: 2 },
+            { pid: 6, arrival: 4, burst: 20, priority: 2 },
+            { pid: 7, arrival: 5, burst: 1, priority: 2 }
         ]
     }
 };

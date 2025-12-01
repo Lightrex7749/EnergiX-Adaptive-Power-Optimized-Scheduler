@@ -71,16 +71,16 @@
                         <div class="table-header">
                             <h3><i class="fas fa-list"></i> Process List</h3>
                             <div class="table-actions">
-                                <div class="form-group" style="margin: 0; min-width: 250px;">
+                                <div class="form-group" style="margin: 0; min-width: 280px;">
                                     <select id="sampleSelect" onchange="loadSelectedSample()" data-testid="sample-select" style="margin: 0;">
-                                        <option value="">-- Load Sample Data --</option>
-                                        <option value="light">Light Load (4 processes)</option>
-                                        <option value="medium">Medium Load (6 processes)</option>
-                                        <option value="heavy">Heavy Load (8 processes)</option>
-                                        <option value="mixed">Mixed Workload (10 processes)</option>
-                                        <option value="io_intensive">I/O Intensive (6 processes)</option>
-                                        <option value="cpu_intensive">CPU Intensive (5 processes)</option>
-                                        <option value="realtime">Real-Time Tasks (7 processes)</option>
+                                        <option value="">-- Load Sample Workload --</option>
+                                        <option value="light">📊 FCFS Winner - Sequential Arrivals</option>
+                                        <option value="medium">🔄 Round Robin Winner - Interactive</option>
+                                        <option value="heavy">⚡ SJF/SRTF Winner - Mixed Bursts</option>
+                                        <option value="mixed">🎯 Priority Winner - Critical Tasks</option>
+                                        <option value="io_intensive">💨 SRTF Winner - I/O Intensive</option>
+                                        <option value="cpu_intensive">🔋 EAH Winner - CPU Bound</option>
+                                        <option value="realtime">⚡ EAH Winner - Energy Efficient</option>
                                     </select>
                                 </div>
                                 <button class="btn btn-secondary" onclick="addProcess()" data-testid="add-process-btn">
