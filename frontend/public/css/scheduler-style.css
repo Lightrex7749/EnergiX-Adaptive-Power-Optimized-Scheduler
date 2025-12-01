@@ -166,9 +166,15 @@ body {
 /* Forms */
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .form-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 .form-group {
@@ -709,4 +715,54 @@ tbody input:focus {
 .comparison-metric.metric-best .comparison-metric-value {
     color: var(--success);
     font-weight: 700;
+}
+
+/* Best Algorithm Header Styling */
+.best-algorithm-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.best-algorithm-header i {
+    font-size: 3rem;
+    color: #fbbf24;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+}
+
+.best-algorithm-text h2 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.best-algorithm-text p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.best-algorithm-result {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+}
+
+.best-algorithm-result h3 {
+    color: var(--primary);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+}
+
+.best-algorithm-result p {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.8;
 }

@@ -414,17 +414,17 @@ function displayComparison(comparisonData) {
     
     // Best Algorithm Summary
     html += `
-        <div class="alert alert-success" style="margin-bottom: 2rem; padding: 1.5rem;">
-            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                <i class="fas fa-trophy" style="font-size: 2rem; color: #fbbf24;"></i>
-                <div>
-                    <h2 style="margin: 0; color: var(--text-primary);">🏆 Best Overall Algorithm</h2>
-                    <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary);">Based on comprehensive analysis of all metrics</p>
+        <div class="alert alert-success" style="margin-bottom: 2rem; padding: 2rem;">
+            <div class="best-algorithm-header">
+                <i class="fas fa-trophy"></i>
+                <div class="best-algorithm-text">
+                    <h2>🏆 Best Overall Algorithm</h2>
+                    <p>Based on comprehensive analysis of all metrics including energy efficiency, turnaround time, waiting time, and context switches</p>
                 </div>
             </div>
-            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                <h3 style="color: var(--primary); font-size: 1.5rem; margin: 0 0 0.5rem 0;">${bestAlgorithms.overall.name}</h3>
-                <p style="margin: 0; color: var(--text-primary); line-height: 1.6;">${bestAlgorithms.overall.reason}</p>
+            <div class="best-algorithm-result">
+                <h3>${bestAlgorithms.overall.name}</h3>
+                <p>${bestAlgorithms.overall.reason}</p>
             </div>
         </div>
         
