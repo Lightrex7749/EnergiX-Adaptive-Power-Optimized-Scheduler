@@ -887,12 +887,22 @@ function determineBestAlgorithms(comparisonData) {
         const normalizedSwitches = algo.context_switches / (bestSwitches.context_switches || 1);
         
         // Algorithm-specific scoring weights
-        let weights = { completion: 0.15, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.15 };
+        // Each algorithm is scored based on what it's designed to optimize
+        let weights = { completion: 0.20, turnaround: 0.20, waiting: 0.20, energy: 0.20, switches: 0.20 };
         
         // Adjust weights based on algorithm type
         const algoName = algo.algorithm.toLowerCase();
         
-        if (algoName.includes('round robin')) {
+        if (algoName.includes('fcfs') || algoName.includes('first come')) {
+            // FCFS is simple, favors order of arrival - penalize less for switches but reward completion
+            weights = { completion: 0.25, turnaround: 0.20, waiting: 0.20, energy: 0.20, switches: 0.15 };
+        } else if (algoName.includes('sjf') && algoName.includes('preemptive')) {
+            // SRTF (SJF Preemptive) - optimizes turnaround but has high switches
+            weights = { completion: 0.15, turnaround: 0.30, waiting: 0.25, energy: 0.15, switches: 0.15 };
+        } else if (algoName.includes('sjf') && !algoName.includes('preemptive')) {
+            // SJF Non-Preemptive - great for turnaround/waiting but penalize more for lack of adaptability
+            weights = { completion: 0.20, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.10 };
+        } else if (algoName.includes('round robin')) {
             // RR focuses on fairness (turnaround) and accepts higher switches
             weights = { completion: 0.10, turnaround: 0.40, waiting: 0.30, energy: 0.10, switches: 0.10 };
         } else if (algoName.includes('energy') || algoName.includes('eah')) {
@@ -903,21 +913,33 @@ function determineBestAlgorithms(comparisonData) {
             weights = { completion: 0.15, turnaround: 0.35, waiting: 0.20, energy: 0.15, switches: 0.15 };
         }
         
+        // Calculate weighted score (lower is better since we normalized to best=1.0)
         const score = (normalizedCompletion * weights.completion) +
                      (normalizedTurnaround * weights.turnaround) + 
                      (normalizedWaiting * weights.waiting) + 
                      (normalizedEnergy * weights.energy) + 
                      (normalizedSwitches * weights.switches);
         
-        return { algo, score };
+        // Store individual normalized scores for debugging
+        return { 
+            algo, 
+            score,
+            breakdown: {
+                completion: normalizedCompletion,
+                turnaround: normalizedTurnaround,
+                waiting: normalizedWaiting,
+                energy: normalizedEnergy,
+                switches: normalizedSwitches
+            }
+        };
     });
     
     // Find the best score with proper tie-breaking rules
     const overall = scores.reduce((best, current) => {
         const scoreDiff = Math.abs(current.score - best.score);
         
-        // If scores are essentially equal (within 0.01), apply tie-breaking rules
-        if (scoreDiff < 0.01) {
+        // If scores are essentially equal (within 0.05 or 5% difference), apply tie-breaking rules
+        if (scoreDiff < 0.05) {
             // Tie-Breaker Rule #1: Lowest Energy Consumption (use raw values, not rounded)
             const energyDiff = Math.abs(parseFloat(current.algo.total_energy) - parseFloat(best.algo.total_energy));
             if (energyDiff > 0.001) {
@@ -988,7 +1010,7 @@ function determineBestAlgorithms(comparisonData) {
     
     // Check if this was a tie-breaking scenario
     const minScore = Math.min(...scores.map(s => s.score));
-    const tiedAlgos = scores.filter(s => Math.abs(s.score - minScore) < 0.01);
+    const tiedAlgos = scores.filter(s => Math.abs(s.score - minScore) < 0.05);
     
     if (tiedAlgos.length > 1) {
         // Multiple algorithms tied - tie-breaking was used
