@@ -209,25 +209,24 @@ const sampleWorkloads = {
     },
     rr1: {
         name: 'Interactive Fairness - RR Wins',
-        description: 'Multiple equal processes - RR minimizes average turnaround/waiting better than FCFS',
+        description: 'Multiple equal-burst interactive processes - RR provides best average turnaround time',
         processes: [
-            { pid: 1, arrival: 0, burst: 6, priority: 3 },
-            { pid: 2, arrival: 0, burst: 6, priority: 3 },
-            { pid: 3, arrival: 0, burst: 6, priority: 3 },
-            { pid: 4, arrival: 0, burst: 6, priority: 3 },
-            { pid: 5, arrival: 0, burst: 6, priority: 3 },
-            { pid: 6, arrival: 0, burst: 6, priority: 3 }
+            { pid: 1, arrival: 0, burst: 10, priority: 3 },
+            { pid: 2, arrival: 0, burst: 10, priority: 3 },
+            { pid: 3, arrival: 0, burst: 10, priority: 3 },
+            { pid: 4, arrival: 0, burst: 10, priority: 3 },
+            { pid: 5, arrival: 0, burst: 10, priority: 3 }
         ]
     },
     priority1: {
         name: 'Urgent Override - Priority Wins',
-        description: 'Critical high-priority short tasks vs low-priority long tasks - priority order crucial',
+        description: 'Low-priority long tasks start first, then critical tasks arrive - priority preempts',
         processes: [
-            { pid: 1, arrival: 0, burst: 15, priority: 5 },  // Low priority, very long
-            { pid: 2, arrival: 0, burst: 2, priority: 1 },   // Critical, short
-            { pid: 3, arrival: 0, burst: 15, priority: 5 },  // Low priority, very long
-            { pid: 4, arrival: 0, burst: 2, priority: 1 },   // Critical, short
-            { pid: 5, arrival: 0, burst: 3, priority: 2 }    // High priority, short
+            { pid: 1, arrival: 0, burst: 15, priority: 5 },  // Low priority starts first
+            { pid: 2, arrival: 2, burst: 2, priority: 1 },   // Critical arrives during P1
+            { pid: 3, arrival: 0, burst: 15, priority: 5 },  // Low priority
+            { pid: 4, arrival: 5, burst: 2, priority: 1 },   // Critical arrives later
+            { pid: 5, arrival: 3, burst: 3, priority: 2 }    // High priority arrives
         ]
     },
     eah1: {
@@ -255,13 +254,13 @@ const sampleWorkloads = {
     },
     priority2: {
         name: 'Emergency Response - Priority Wins',
-        description: 'Emergency tasks with highest priority must run immediately despite long queue',
+        description: 'Long background tasks running when emergency tasks arrive - preemption crucial',
         processes: [
-            { pid: 1, arrival: 0, burst: 12, priority: 5 },  // Low priority
-            { pid: 2, arrival: 0, burst: 1, priority: 1 },   // Emergency
-            { pid: 3, arrival: 0, burst: 12, priority: 5 },  // Low priority
-            { pid: 4, arrival: 0, burst: 1, priority: 1 },   // Emergency
-            { pid: 5, arrival: 1, burst: 1, priority: 1 }    // Late emergency
+            { pid: 1, arrival: 0, burst: 20, priority: 5 },  // Long background task
+            { pid: 2, arrival: 3, burst: 1, priority: 1 },   // Emergency arrives
+            { pid: 3, arrival: 0, burst: 20, priority: 5 },  // Long background task
+            { pid: 4, arrival: 7, burst: 1, priority: 1 },   // Another emergency
+            { pid: 5, arrival: 10, burst: 2, priority: 2 }   // High priority task
         ]
     },
     fcfs2: {
