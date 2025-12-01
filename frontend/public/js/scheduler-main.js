@@ -1178,3 +1178,314 @@ function hideLoading() {
         overlay.remove();
     }
 }
+
+/**
+ * Handle CSV File Upload for Batch Testing
+ */
+function handleCSVUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (!file.name.endsWith('.csv')) {
+        showAlert('Please upload a CSV file', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const csvContent = e.target.result;
+            parseAndRunBatchTests(csvContent);
+        } catch (error) {
+            showAlert('Error reading CSV file: ' + error.message, 'error');
+        }
+    };
+    reader.readAsText(file);
+    
+    // Reset file input
+    event.target.value = '';
+}
+
+/**
+ * Parse CSV and Run Batch Tests
+ * CSV Format: Each scenario separated by blank line
+ * Columns: pid,arrival,burst,priority
+ */
+function parseAndRunBatchTests(csvContent) {
+    const lines = csvContent.split('\n').map(line => line.trim()).filter(line => line);
+    
+    if (lines.length === 0) {
+        showAlert('CSV file is empty', 'error');
+        return;
+    }
+    
+    // Parse scenarios (separated by blank lines or scenario markers)
+    const scenarios = [];
+    let currentScenario = [];
+    let scenarioName = `Scenario ${scenarios.length + 1}`;
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        // Check for scenario name comment
+        if (line.startsWith('#') || line.startsWith('//')) {
+            if (currentScenario.length > 0) {
+                scenarios.push({ name: scenarioName, processes: currentScenario });
+                currentScenario = [];
+            }
+            scenarioName = line.replace(/^[#\/]+\s*/, '').trim() || `Scenario ${scenarios.length + 1}`;
+            continue;
+        }
+        
+        // Skip header row
+        if (line.toLowerCase().includes('pid') && line.toLowerCase().includes('arrival')) {
+            continue;
+        }
+        
+        // Parse process line
+        const parts = line.split(',').map(p => p.trim());
+        if (parts.length >= 3) {
+            const process = {
+                pid: parseInt(parts[0]) || currentScenario.length + 1,
+                arrival: parseInt(parts[1]) || 0,
+                burst: parseInt(parts[2]) || 1,
+                priority: parts[3] ? parseInt(parts[3]) : 3
+            };
+            
+            if (process.burst > 0) {
+                currentScenario.push(process);
+            }
+        }
+    }
+    
+    // Add last scenario
+    if (currentScenario.length > 0) {
+        scenarios.push({ name: scenarioName, processes: currentScenario });
+    }
+    
+    if (scenarios.length === 0) {
+        showAlert('No valid processes found in CSV', 'error');
+        return;
+    }
+    
+    // Run batch tests
+    runBatchTests(scenarios);
+}
+
+/**
+ * Run Batch Tests on Multiple Scenarios
+ */
+async function runBatchTests(scenarios) {
+    showLoading(`Running batch tests on ${scenarios.length} scenarios...`);
+    
+    const batchResults = [];
+    const quantum = parseInt(document.getElementById('quantum').value) || 2;
+    const thresholdInput = document.getElementById('threshold').value;
+    const threshold = thresholdInput ? parseFloat(thresholdInput) : null;
+    
+    try {
+        for (let i = 0; i < scenarios.length; i++) {
+            const scenario = scenarios[i];
+            showLoading(`Testing scenario ${i + 1}/${scenarios.length}: ${scenario.name}...`);
+            
+            const result = await compareAlgorithms(scenario.processes, quantum, threshold);
+            
+            // Determine best algorithm
+            const bestAlgos = determineBestAlgorithms(result);
+            
+            batchResults.push({
+                scenario: scenario.name,
+                processCount: scenario.processes.length,
+                results: result,
+                bestOverall: bestAlgos ? bestAlgos.overall.name : 'N/A',
+                bestCompletion: bestAlgos ? bestAlgos.completion.name : 'N/A',
+                bestEnergy: bestAlgos ? bestAlgos.energy.name : 'N/A',
+                bestTurnaround: bestAlgos ? bestAlgos.turnaround.name : 'N/A'
+            });
+        }
+        
+        hideLoading();
+        displayBatchResults(batchResults);
+        
+    } catch (error) {
+        hideLoading();
+        showAlert('Error during batch testing: ' + error.message, 'error');
+    }
+}
+
+/**
+ * Display Batch Test Results
+ */
+function displayBatchResults(batchResults) {
+    const container = document.getElementById('resultsContent');
+    if (!container) return;
+    
+    let html = `
+        <div class="batch-results-container" style="padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h2><i class="fas fa-chart-bar"></i> Batch Test Results</h2>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">
+                        Tested ${batchResults.length} scenarios
+                    </p>
+                </div>
+                <button class="btn btn-primary" onclick="exportBatchResultsCSV()">
+                    <i class="fas fa-download"></i> Export Summary
+                </button>
+            </div>
+            
+            <!-- Summary Statistics -->
+            <div class="summary-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    `;
+    
+    // Calculate algorithm win counts
+    const winCounts = {};
+    batchResults.forEach(result => {
+        const algo = result.bestOverall;
+        winCounts[algo] = (winCounts[algo] || 0) + 1;
+    });
+    
+    const sortedAlgos = Object.entries(winCounts).sort((a, b) => b[1] - a[1]);
+    
+    html += `
+        <div class="stat-card" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">${batchResults.length}</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Total Scenarios</div>
+        </div>
+    `;
+    
+    if (sortedAlgos.length > 0) {
+        html += `
+            <div class="stat-card" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">${sortedAlgos[0][0]}</div>
+                <div style="color: var(--text-secondary); font-size: 0.9rem;">Most Wins (${sortedAlgos[0][1]})</div>
+            </div>
+        `;
+    }
+    
+    const totalProcesses = batchResults.reduce((sum, r) => sum + r.processCount, 0);
+    html += `
+        <div class="stat-card" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--info);">${totalProcesses}</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Total Processes Tested</div>
+        </div>
+    `;
+    
+    html += '</div>';
+    
+    // Results Table
+    html += `
+        <div style="overflow-x: auto;">
+            <table class="batch-results-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead style="background: var(--bg-tertiary);">
+                    <tr>
+                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">#</th>
+                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Scenario Name</th>
+                        <th style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">Processes</th>
+                        <th style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">Best Overall</th>
+                        <th style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">Best Completion</th>
+                        <th style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">Best Energy</th>
+                        <th style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">Best Turnaround</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    batchResults.forEach((result, index) => {
+        html += `
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 0.75rem; border: 1px solid var(--border-color);">${index + 1}</td>
+                <td style="padding: 0.75rem; border: 1px solid var(--border-color); font-weight: 600;">${result.scenario}</td>
+                <td style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">${result.processCount}</td>
+                <td style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color); color: var(--success); font-weight: 600;">
+                    <i class="fas fa-crown"></i> ${result.bestOverall}
+                </td>
+                <td style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">${result.bestCompletion}</td>
+                <td style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">${result.bestEnergy}</td>
+                <td style="padding: 0.75rem; text-align: center; border: 1px solid var(--border-color);">${result.bestTurnaround}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Algorithm Win Distribution -->
+        <div style="margin-top: 2rem;">
+            <h3 style="margin-bottom: 1rem;">Algorithm Performance Summary</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+    `;
+    
+    sortedAlgos.forEach(([algo, count]) => {
+        const percentage = ((count / batchResults.length) * 100).toFixed(1);
+        html += `
+            <div class="algo-win-card" style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="font-weight: 600; margin-bottom: 0.5rem;">${algo}</div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="flex: 1; height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; background: var(--primary); width: ${percentage}%;"></div>
+                    </div>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary);">${count} (${percentage}%)</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; border-left: 3px solid var(--info);">
+            <strong>💡 Tip:</strong> CSV format for batch testing:<br>
+            <code style="display: block; margin-top: 0.5rem; padding: 0.5rem; background: var(--bg-secondary); border-radius: 4px; font-size: 0.85rem;">
+                # Scenario Name<br>
+                pid,arrival,burst,priority<br>
+                1,0,5,2<br>
+                2,1,3,1<br>
+                <br>
+                # Another Scenario<br>
+                pid,arrival,burst,priority<br>
+                1,0,8,3<br>
+                2,2,4,2
+            </code>
+        </div>
+    </div>
+    `;
+    
+    container.innerHTML = html;
+    
+    // Store results for export
+    window.currentBatchResults = batchResults;
+    
+    // Show results
+    document.getElementById('inputSection').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'block';
+}
+
+/**
+ * Export Batch Results as CSV
+ */
+function exportBatchResultsCSV() {
+    if (!window.currentBatchResults) {
+        showAlert('No batch results to export', 'error');
+        return;
+    }
+    
+    let csv = 'Scenario,Processes,Best Overall,Best Completion,Best Energy,Best Turnaround\n';
+    
+    window.currentBatchResults.forEach(result => {
+        csv += `"${result.scenario}",${result.processCount},"${result.bestOverall}","${result.bestCompletion}","${result.bestEnergy}","${result.bestTurnaround}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `batch_test_results_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    showAlert('Batch results exported successfully!', 'success');
+}
