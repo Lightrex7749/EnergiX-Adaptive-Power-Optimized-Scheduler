@@ -575,28 +575,10 @@ function determineBestAlgorithms(comparisonData) {
         return { algo, score };
     });
     
-    // Find the best score, handling ties with preference order
-    // Preference: EAH > Priority > SJF Non-Preemptive > SRTF > FCFS > Round Robin
-    const preferenceOrder = {
-        'Energy-Aware Hybrid (EAH)': 6,
-        'Priority Scheduling (Non-Preemptive)': 5,
-        'Priority Scheduling (Preemptive)': 5,
-        'SJF Non-Preemptive': 4,
-        'SJF Preemptive (SRTF)': 3,
-        'FCFS': 2,
-        'Round Robin': 1
-    };
-    
-    const overall = scores.reduce((best, current) => {
-        const scoreDiff = Math.abs(current.score - best.score);
-        // If scores are within 0.05 (essentially tied), prefer based on algorithm preference
-        if (scoreDiff < 0.05) {
-            const currentPref = preferenceOrder[current.algo.algorithm] || 0;
-            const bestPref = preferenceOrder[best.algo.algorithm] || 0;
-            return currentPref > bestPref ? current : best;
-        }
-        return current.score < best.score ? current : best;
-    }).algo;
+    // Find the best score - simple minimum selection
+    const overall = scores.reduce((best, current) => 
+        current.score < best.score ? current : best
+    ).algo;
     
     // Generate reason for overall best with detailed analysis of all 5 metrics
     let reason = '';
