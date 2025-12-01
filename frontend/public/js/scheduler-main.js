@@ -208,8 +208,8 @@ const sampleWorkloads = {
         ]
     },
     rr1: {
-        name: 'Interactive Fairness - RR Wins',
-        description: 'Multiple equal-burst interactive processes - RR provides best average turnaround time',
+        name: 'Interactive Fairness Test',
+        description: 'Multiple equal-burst interactive processes arriving simultaneously',
         processes: [
             { pid: 1, arrival: 0, burst: 10, priority: 3 },
             { pid: 2, arrival: 0, burst: 10, priority: 3 },
@@ -219,8 +219,8 @@ const sampleWorkloads = {
         ]
     },
     priority1: {
-        name: 'Urgent Override - Priority Wins',
-        description: 'Low-priority long tasks start first, then critical tasks arrive - priority preempts',
+        name: 'Urgent Task Test',
+        description: 'Low-priority long tasks start, then critical short tasks arrive during execution',
         processes: [
             { pid: 1, arrival: 0, burst: 15, priority: 5 },  // Low priority starts first
             { pid: 2, arrival: 2, burst: 2, priority: 1 },   // Critical arrives during P1
@@ -230,8 +230,8 @@ const sampleWorkloads = {
         ]
     },
     eah1: {
-        name: 'Energy Critical - EAH Wins',
-        description: 'Extreme mix - many tiny tasks and few huge tasks maximize DVFS energy savings',
+        name: 'Energy Optimization Test',
+        description: 'Extreme mix of tiny and huge tasks - tests DVFS energy savings potential',
         processes: [
             { pid: 1, arrival: 0, burst: 1, priority: 3 },   // Tiny - low freq
             { pid: 2, arrival: 0, burst: 1, priority: 3 },   // Tiny - low freq
@@ -242,8 +242,8 @@ const sampleWorkloads = {
         ]
     },
     rr2: {
-        name: 'Prevent Starvation - RR Wins',
-        description: 'One long process with many short ones - RR prevents long wait times',
+        name: 'Convoy Effect Test',
+        description: 'One long process with multiple short ones - tests time-slicing benefit',
         processes: [
             { pid: 1, arrival: 0, burst: 20, priority: 3 },
             { pid: 2, arrival: 0, burst: 4, priority: 3 },
@@ -253,8 +253,8 @@ const sampleWorkloads = {
         ]
     },
     priority2: {
-        name: 'Emergency Response - Priority Wins',
-        description: 'Long background tasks running when emergency tasks arrive - preemption crucial',
+        name: 'Emergency Response Test',
+        description: 'Long background tasks interrupted by arriving emergency high-priority tasks',
         processes: [
             { pid: 1, arrival: 0, burst: 20, priority: 5 },  // Long background task
             { pid: 2, arrival: 3, burst: 1, priority: 1 },   // Emergency arrives
@@ -273,8 +273,8 @@ const sampleWorkloads = {
         ]
     },
     eah2: {
-        name: 'Battery Powered - EAH Wins',
-        description: 'Mobile device - many UI tasks and few heavy background tasks maximize battery life',
+        name: 'Mobile Device Test',
+        description: 'Mobile scenario with many UI tasks and few heavy background tasks',
         processes: [
             { pid: 1, arrival: 0, burst: 1, priority: 3 },   // UI tap
             { pid: 2, arrival: 0, burst: 1, priority: 3 },   // UI tap
