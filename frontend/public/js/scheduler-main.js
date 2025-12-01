@@ -295,13 +295,62 @@ async function compareAll() {
 function displayComparison(comparisonData) {
     const container = document.getElementById('compareContent');
     
+    // Determine best algorithms for each metric
+    const bestAlgorithms = determineBestAlgorithms(comparisonData);
+    
     let html = '<div class="comparison-container">';
     
+    // Best Algorithm Summary
+    html += `
+        <div class="alert alert-success" style="margin-bottom: 2rem; padding: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <i class="fas fa-trophy" style="font-size: 2rem; color: #fbbf24;"></i>
+                <div>
+                    <h2 style="margin: 0; color: var(--text-primary);">🏆 Best Overall Algorithm</h2>
+                    <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary);">Based on comprehensive analysis of all metrics</p>
+                </div>
+            </div>
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                <h3 style="color: var(--primary); font-size: 1.5rem; margin: 0 0 0.5rem 0;">${bestAlgorithms.overall.name}</h3>
+                <p style="margin: 0; color: var(--text-primary); line-height: 1.6;">${bestAlgorithms.overall.reason}</p>
+            </div>
+        </div>
+        
+        <div class="best-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div class="best-metric-card">
+                <i class="fas fa-bolt" style="color: var(--warning);"></i>
+                <h4>Lowest Energy</h4>
+                <p>${bestAlgorithms.energy.name}</p>
+                <span>${bestAlgorithms.energy.value} units</span>
+            </div>
+            <div class="best-metric-card">
+                <i class="fas fa-clock" style="color: var(--primary);"></i>
+                <h4>Fastest Completion</h4>
+                <p>${bestAlgorithms.turnaround.name}</p>
+                <span>${bestAlgorithms.turnaround.value} time units</span>
+            </div>
+            <div class="best-metric-card">
+                <i class="fas fa-hourglass-half" style="color: var(--success);"></i>
+                <h4>Lowest Wait Time</h4>
+                <p>${bestAlgorithms.waiting.name}</p>
+                <span>${bestAlgorithms.waiting.value} time units</span>
+            </div>
+            <div class="best-metric-card">
+                <i class="fas fa-exchange-alt" style="color: var(--info);"></i>
+                <h4>Fewest Switches</h4>
+                <p>${bestAlgorithms.switches.name}</p>
+                <span>${bestAlgorithms.switches.value} switches</span>
+            </div>
+        </div>
+    `;
+    
     // Comparison cards
+    html += '<h3 style="margin: 2rem 0 1rem 0;">Detailed Comparison</h3>';
     html += '<div class="comparison-grid">';
     
     Object.keys(comparisonData).forEach(algoKey => {
         const algo = comparisonData[algoKey];
+        const isBest = algo.algorithm === bestAlgorithms.overall.name;
         
         if (algo.error) {
             html += `
@@ -314,23 +363,24 @@ function displayComparison(comparisonData) {
             `;
         } else {
             html += `
-                <div class="comparison-card">
+                <div class="comparison-card${isBest ? ' best-algorithm' : ''}">
+                    ${isBest ? '<div class="best-badge"><i class="fas fa-crown"></i> Best Overall</div>' : ''}
                     <h3>${algo.algorithm}</h3>
-                    <div class="comparison-metric">
+                    <div class="comparison-metric${algo.algorithm === bestAlgorithms.turnaround.name ? ' metric-best' : ''}">
                         <span class="comparison-metric-label">Avg Turnaround Time</span>
-                        <span class="comparison-metric-value">${algo.avg_turnaround}</span>
+                        <span class="comparison-metric-value">${algo.avg_turnaround}${algo.algorithm === bestAlgorithms.turnaround.name ? ' ⭐' : ''}</span>
                     </div>
-                    <div class="comparison-metric">
+                    <div class="comparison-metric${algo.algorithm === bestAlgorithms.waiting.name ? ' metric-best' : ''}">
                         <span class="comparison-metric-label">Avg Waiting Time</span>
-                        <span class="comparison-metric-value">${algo.avg_waiting}</span>
+                        <span class="comparison-metric-value">${algo.avg_waiting}${algo.algorithm === bestAlgorithms.waiting.name ? ' ⭐' : ''}</span>
                     </div>
-                    <div class="comparison-metric">
+                    <div class="comparison-metric${algo.algorithm === bestAlgorithms.switches.name ? ' metric-best' : ''}">
                         <span class="comparison-metric-label">Context Switches</span>
-                        <span class="comparison-metric-value">${algo.context_switches}</span>
+                        <span class="comparison-metric-value">${algo.context_switches}${algo.algorithm === bestAlgorithms.switches.name ? ' ⭐' : ''}</span>
                     </div>
-                    <div class="comparison-metric">
+                    <div class="comparison-metric${algo.algorithm === bestAlgorithms.energy.name ? ' metric-best' : ''}">
                         <span class="comparison-metric-label">Total Energy</span>
-                        <span class="comparison-metric-value" style="color: var(--warning);">${algo.total_energy}</span>
+                        <span class="comparison-metric-value" style="color: var(--warning);">${algo.total_energy}${algo.algorithm === bestAlgorithms.energy.name ? ' ⭐' : ''}</span>
                     </div>
                     <div class="comparison-metric">
                         <span class="comparison-metric-label">Completion Time</span>
@@ -353,6 +403,93 @@ function displayComparison(comparisonData) {
     setTimeout(() => {
         renderComparisonChart(comparisonData, 'comparisonChart');
     }, 100);
+}
+
+/**
+ * Determine Best Algorithms for Each Metric
+ */
+function determineBestAlgorithms(comparisonData) {
+    const validAlgos = Object.values(comparisonData).filter(algo => !algo.error);
+    
+    if (validAlgos.length === 0) {
+        return null;
+    }
+    
+    // Find best for each metric
+    const bestEnergy = validAlgos.reduce((min, algo) => 
+        parseFloat(algo.total_energy) < parseFloat(min.total_energy) ? algo : min
+    );
+    
+    const bestTurnaround = validAlgos.reduce((min, algo) => 
+        parseFloat(algo.avg_turnaround) < parseFloat(min.avg_turnaround) ? algo : min
+    );
+    
+    const bestWaiting = validAlgos.reduce((min, algo) => 
+        parseFloat(algo.avg_waiting) < parseFloat(min.avg_waiting) ? algo : min
+    );
+    
+    const bestSwitches = validAlgos.reduce((min, algo) => 
+        algo.context_switches < min.context_switches ? algo : min
+    );
+    
+    // Calculate overall best using weighted scoring
+    // Energy: 40%, Turnaround: 25%, Waiting: 25%, Switches: 10%
+    const scores = validAlgos.map(algo => {
+        const normalizedEnergy = parseFloat(algo.total_energy) / parseFloat(bestEnergy.total_energy);
+        const normalizedTurnaround = parseFloat(algo.avg_turnaround) / parseFloat(bestTurnaround.avg_turnaround);
+        const normalizedWaiting = parseFloat(algo.avg_waiting) / parseFloat(bestWaiting.avg_waiting);
+        const normalizedSwitches = algo.context_switches / bestSwitches.context_switches;
+        
+        const score = (normalizedEnergy * 0.4) + 
+                     (normalizedTurnaround * 0.25) + 
+                     (normalizedWaiting * 0.25) + 
+                     (normalizedSwitches * 0.1);
+        
+        return { algo, score };
+    });
+    
+    const overall = scores.reduce((best, current) => 
+        current.score < best.score ? current : best
+    ).algo;
+    
+    // Generate reason for overall best
+    let reason = 'Achieves the best balance across all metrics. ';
+    if (overall.algorithm === bestEnergy.algorithm) {
+        reason += 'Provides lowest energy consumption (' + overall.total_energy + ' units), ';
+    }
+    if (overall.algorithm === bestTurnaround.algorithm) {
+        reason += 'fastest completion time (' + overall.avg_turnaround + '), ';
+    }
+    if (overall.algorithm === bestWaiting.algorithm) {
+        reason += 'minimal waiting time (' + overall.avg_waiting + '), ';
+    }
+    if (overall.algorithm === bestSwitches.algorithm) {
+        reason += 'fewest context switches (' + overall.context_switches + '), ';
+    }
+    reason += 'making it ideal for energy-efficient mobile and embedded systems.';
+    
+    return {
+        overall: {
+            name: overall.algorithm,
+            reason: reason
+        },
+        energy: {
+            name: bestEnergy.algorithm,
+            value: bestEnergy.total_energy
+        },
+        turnaround: {
+            name: bestTurnaround.algorithm,
+            value: bestTurnaround.avg_turnaround
+        },
+        waiting: {
+            name: bestWaiting.algorithm,
+            value: bestWaiting.avg_waiting
+        },
+        switches: {
+            name: bestSwitches.algorithm,
+            value: bestSwitches.context_switches
+        }
+    };
 }
 
 /**
