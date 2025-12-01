@@ -269,31 +269,16 @@ const sampleWorkloads = {
 
 function loadSelectedSample() {
     const select = document.getElementById('sampleSelect');
-    const optionValue = select.value;
+    const sampleKey = select.value;
     
-    if (!optionValue) {
+    if (!sampleKey) {
         return;
     }
     
-    // Map dropdown values to sample keys
-    const sampleKeyMap = {
-        'fcfs1': 'fcfs_staggered',
-        'sjf1': 'sjf_short_together',
-        'srtf1': 'srtf_late_arrival',
-        'rr1': 'rr_similar_size',
-        'priority1': 'priority_urgent',
-        'eah1': 'eah_mixed',
-        'rr2': 'rr_fair',
-        'priority2': 'priority_preemptive',
-        'fcfs2': 'fcfs_long_first',
-        'eah2': 'eah_energy'
-    };
-    
-    const sampleKey = sampleKeyMap[optionValue];
     const sample = sampleWorkloads[sampleKey];
     
     if (!sample) {
-        showAlert(`Sample not found: ${optionValue}`, 'error');
+        showAlert(`Sample not found: ${sampleKey}`, 'error');
         return;
     }
     
