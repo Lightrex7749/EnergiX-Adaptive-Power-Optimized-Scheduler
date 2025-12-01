@@ -575,10 +575,46 @@ function determineBestAlgorithms(comparisonData) {
         return { algo, score };
     });
     
-    // Find the best score - simple minimum selection
-    const overall = scores.reduce((best, current) => 
-        current.score < best.score ? current : best
-    ).algo;
+    // Find the best score with proper tie-breaking rules
+    const overall = scores.reduce((best, current) => {
+        const scoreDiff = Math.abs(current.score - best.score);
+        
+        // If scores are essentially equal (within 0.01), apply tie-breaking rules
+        if (scoreDiff < 0.01) {
+            // Tie-Breaker Rule #1: Lowest Energy Consumption (use raw values, not rounded)
+            const energyDiff = Math.abs(parseFloat(current.algo.total_energy) - parseFloat(best.algo.total_energy));
+            if (energyDiff > 0.001) {
+                return parseFloat(current.algo.total_energy) < parseFloat(best.algo.total_energy) ? current : best;
+            }
+            
+            // Tie-Breaker Rule #2: Lowest Context Switches
+            if (current.algo.context_switches !== best.algo.context_switches) {
+                return current.algo.context_switches < best.algo.context_switches ? current : best;
+            }
+            
+            // Tie-Breaker Rule #3: Algorithm Simplicity
+            // FCFS (6) > SJF Non-Preemptive (5) > Priority (4) > EAH (3) > Round Robin (2) > SRTF (1)
+            const simplicityRanking = {
+                'FCFS': 6,
+                'SJF Non-Preemptive': 5,
+                'Priority Scheduling (Non-Preemptive)': 4,
+                'Energy-Aware Hybrid (EAH)': 3,
+                'Round Robin (Quantum=2)': 2,
+                'SJF Preemptive (SRTF)': 1,
+                'Priority Scheduling (Preemptive)': 2
+            };
+            
+            const currentSimplicity = simplicityRanking[current.algo.algorithm] || 0;
+            const bestSimplicity = simplicityRanking[best.algo.algorithm] || 0;
+            
+            if (currentSimplicity !== bestSimplicity) {
+                return currentSimplicity > bestSimplicity ? current : best;
+            }
+        }
+        
+        // Otherwise, pick the one with lower score
+        return current.score < best.score ? current : best;
+    }).algo;
     
     // Generate reason for overall best with detailed analysis of all 5 metrics
     let reason = '';
@@ -613,7 +649,21 @@ function determineBestAlgorithms(comparisonData) {
     const energyRank = validAlgos.filter(a => parseFloat(a.total_energy) < parseFloat(overall.total_energy)).length + 1;
     const switchesRank = validAlgos.filter(a => a.context_switches < overall.context_switches).length + 1;
     
-    if (energyRank === 1 && switchesRank === 1) {
+    // Check if this was a tie-breaking scenario
+    const minScore = Math.min(...scores.map(s => s.score));
+    const tiedAlgos = scores.filter(s => Math.abs(s.score - minScore) < 0.01);
+    
+    if (tiedAlgos.length > 1) {
+        // Multiple algorithms tied - tie-breaking was used
+        if (energyRank === 1) {
+            reason += 'Won due to lowest energy consumption in tie-breaking (Rule #1). ';
+        } else if (switchesRank === 1) {
+            reason += 'Won due to fewest context switches in tie-breaking (Rule #2). ';
+        } else {
+            reason += 'Won due to algorithm simplicity in tie-breaking (Rule #3) - simpler algorithms have less overhead and are more predictable. ';
+        }
+        reason += 'When performance metrics are equal, energy efficiency, minimal context switching, and algorithmic simplicity determine the winner.';
+    } else if (energyRank === 1 && switchesRank === 1) {
         reason += 'Ideal for battery-powered mobile and embedded devices where energy efficiency is paramount.';
     } else if (completionRank === 1 || (overall.algorithm === bestTurnaround.algorithm && overall.algorithm === bestWaiting.algorithm)) {
         reason += 'Perfect for high-performance systems where speed and responsiveness are critical.';
