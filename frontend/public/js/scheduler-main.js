@@ -578,6 +578,16 @@ function displayComparison(comparisonData) {
                         <span class="comparison-metric-label">Context Switches</span>
                         <span class="comparison-metric-value">${algo.context_switches}${algo.algorithm === bestAlgorithms.switches.name ? ' ⭐' : ''}</span>
                     </div>
+                    ${algo.advanced_metrics ? `
+                    <div class="comparison-metric-advanced" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+                            <div><i class="fas fa-microchip"></i> CPU: ${algo.advanced_metrics.cpu_utilization}%</div>
+                            <div><i class="fas fa-tachometer-alt"></i> Throughput: ${algo.advanced_metrics.throughput}</div>
+                            <div><i class="fas fa-stopwatch"></i> Response: ${algo.advanced_metrics.avg_response_time}</div>
+                            <div><i class="fas fa-balance-scale"></i> Fairness: ${algo.advanced_metrics.fairness_index}</div>
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
         }
