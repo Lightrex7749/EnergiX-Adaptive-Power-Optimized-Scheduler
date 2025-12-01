@@ -136,6 +136,18 @@ function clearProcesses() {
     const tbody = document.getElementById('processTableBody');
     tbody.innerHTML = '';
     processIdCounter = 1;
+    
+    // Remove current sample indicator
+    const indicator = document.querySelector('.current-sample-indicator');
+    if (indicator) {
+        indicator.remove();
+    }
+    
+    // Reset dropdown selection
+    const select = document.getElementById('sampleSelect');
+    if (select) {
+        select.value = '';
+    }
 }
 
 function getProcesses() {
@@ -255,10 +267,35 @@ function loadSelectedSample() {
         processIdCounter = Math.max(processIdCounter, p.pid + 1);
     });
     
-    showAlert(`${sample.name} loaded: ${sample.description}`, 'success');
+    // Update the current sample indicator
+    updateCurrentSampleDisplay(sample.name, sample.description);
     
-    // Reset dropdown
-    select.value = '';
+    showAlert(`${sample.name} loaded successfully!`, 'success');
+    
+    // Keep the selected value visible instead of resetting
+    // select.value = ''; // Commented out so selection stays visible
+}
+
+function updateCurrentSampleDisplay(name, description) {
+    // Remove old indicator if exists
+    const oldIndicator = document.querySelector('.current-sample-indicator');
+    if (oldIndicator) {
+        oldIndicator.remove();
+    }
+    
+    // Create new indicator
+    const tableHeader = document.querySelector('.table-header h3');
+    if (tableHeader) {
+        const indicator = document.createElement('div');
+        indicator.className = 'current-sample-indicator';
+        indicator.innerHTML = `
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 1rem; padding: 0.5rem 1rem; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--primary);">
+                <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                <span style="color: var(--text-primary); font-weight: 500;">${name}</span>
+            </div>
+        `;
+        tableHeader.appendChild(indicator);
+    }
 }
 
 function loadSample() {
