@@ -447,7 +447,7 @@ function displayComparison(comparisonData) {
             <div class="best-algorithm-header">
                 <i class="fas fa-trophy"></i>
                 <div class="best-algorithm-text">
-                    <h2>🏆 Best Overall Algorithm</h2>
+                    <h2>Best Overall Algorithm</h2>
                     <p>Based on comprehensive analysis of all metrics including energy efficiency, turnaround time, waiting time, and context switches</p>
                 </div>
             </div>
