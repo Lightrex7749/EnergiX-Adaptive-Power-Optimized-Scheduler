@@ -766,3 +766,209 @@ tbody input:focus {
     font-size: 1rem;
     line-height: 1.8;
 }
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border-radius: 16px;
+    max-width: 900px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border);
+}
+
+.modal-content h2 {
+    color: var(--text-primary);
+}
+
+.modal-content h3,
+.modal-content h4 {
+    color: var(--text-primary);
+}
+
+.modal-content p,
+.modal-content li,
+.modal-content div {
+    color: var(--text-primary);
+}
+
+.modal-content label {
+    color: var(--text-primary);
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 8px;
+}
+
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.modal-content table {
+    color: var(--text-primary);
+}
+
+.modal-content table th {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.modal-content table td {
+    color: var(--text-primary);
+}
+
+/* Info/Warning/Success boxes in modals */
+.modal-content [style*="background: var(--info-bg"] {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-color: var(--primary) !important;
+}
+
+.modal-content [style*="background: var(--warning-bg"] {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border-color: var(--warning) !important;
+}
+
+.modal-content [style*="background: var(--success-bg"] {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border-color: var(--success) !important;
+}
+
+.modal-content [style*="background: var(--danger-bg"] {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: var(--danger) !important;
+}
+
+.modal-content code {
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--primary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Improved Button Layout */
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.action-buttons .btn {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Gantt Chart Container Improvements */
+.gantt-container {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+}
+
+.gantt-container h3,
+.gantt-container h4 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+/* Animation Controls */
+.animation-controls {
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.animation-controls .btn {
+    flex: 0 0 auto;
+    min-width: 100px;
+}
+
+.animation-controls label {
+    color: var(--text-primary);
+    margin-right: 0.5rem;
+}
+
+.animation-controls input[type="range"] {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Responsive Grid for Cards */
+@media (max-width: 768px) {
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+}
+
+/* Fix for button overflow in table actions */
+.table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.table-actions .btn {
+    flex: 0 0 auto;
+}
+
+.table-actions .form-group {
+    flex: 1 1 200px;
+    min-width: 200px;
+}
+
+/* Ensure text visibility in gradient buttons */
+.btn[style*="linear-gradient"] {
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Info/Warning color variables */
+:root {
+    --info: #3b82f6;
+    --info-bg: rgba(59, 130, 246, 0.1);
+    --warning-bg: rgba(245, 158, 11, 0.1);
+    --success-bg: rgba(16, 185, 129, 0.1);
+    --danger-bg: rgba(239, 68, 68, 0.1);
+}
+

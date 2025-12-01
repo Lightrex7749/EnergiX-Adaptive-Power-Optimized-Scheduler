@@ -755,7 +755,7 @@ function displayComparison(comparisonData) {
     html += '</div>';
     
     // Gantt Charts Section
-    html += '<h3 style="margin: 3rem 0 1rem 0;">Execution Timeline (Gantt Charts)</h3>';
+    html += '<h3 style="margin: 3rem 0 1rem 0; color: var(--text-primary);">Execution Timeline (Gantt Charts)</h3>';
     html += '<div class="gantt-comparison-container" style="display: grid; gap: 2rem; margin-bottom: 2rem;">';
     
     Object.keys(comparisonData).forEach(algoKey => {
@@ -763,14 +763,14 @@ function displayComparison(comparisonData) {
         if (!algo.error && algo.gantt) {
             const containerId = `gantt-${algoKey}`;
             html += `
-                <div class="gantt-section" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h4 style="margin: 0; color: var(--text-primary);">${algo.algorithm}</h4>
-                        <button class="btn btn-secondary btn-sm animate-btn" data-algo="${algoKey}" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                <div class="gantt-section" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); overflow: hidden;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <h4 style="margin: 0; color: var(--text-primary); flex: 1 1 auto; min-width: 200px;">${algo.algorithm}</h4>
+                        <button class="btn btn-secondary btn-sm animate-btn" data-algo="${algoKey}" style="padding: 0.5rem 1rem; font-size: 0.875rem; flex-shrink: 0; white-space: nowrap;">
                             <i class="fas fa-play-circle"></i> Animate
                         </button>
                     </div>
-                    <div id="${containerId}"></div>
+                    <div id="${containerId}" style="overflow-x: auto;"></div>
                     <div id="animation-${algoKey}" style="display: none; margin-top: 1rem;"></div>
                 </div>
             `;
@@ -2177,24 +2177,24 @@ function openMulticoreSimulator() {
     modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;';
     
     modal.innerHTML = `
-        <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 900px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <div style="padding: 2rem; border-bottom: 2px solid var(--border-color);">
+        <div class="modal-content">
+            <div style="padding: 2rem; border-bottom: 2px solid var(--border);">
                 <h2 style="margin: 0; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-microchip"></i>
                     Multi-Core CPU Simulation
                 </h2>
-                <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">
+                <p style="margin: 0.5rem 0 0 0; color: var(--text-primary); font-size: 0.9rem;">
                     Simulate parallel execution across multiple CPU cores
                 </p>
             </div>
             
             <div style="padding: 2rem;">
-                <div style="background: var(--info-bg, #e3f2fd); border-left: 4px solid var(--info, #2196F3); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                <div style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--primary); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
                     <div style="display: flex; align-items: start; gap: 0.75rem;">
-                        <i class="fas fa-info-circle" style="color: var(--info, #2196F3); margin-top: 0.2rem;"></i>
-                        <div style="flex: 1; font-size: 0.9rem; line-height: 1.6;">
-                            <strong>Multi-Core Features:</strong>
-                            <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
+                        <i class="fas fa-info-circle" style="color: var(--primary); margin-top: 0.2rem;"></i>
+                        <div style="flex: 1; font-size: 0.9rem; line-height: 1.6; color: var(--text-primary);">
+                            <strong style="color: var(--text-primary);">Multi-Core Features:</strong>
+                            <ul style="margin: 0.5rem 0 0 1rem; padding: 0; color: var(--text-primary);">
                                 <li>Parallel process execution across 2, 4, or 8 cores</li>
                                 <li>Per-core Gantt charts showing individual core workload</li>
                                 <li>Core utilization and load balance metrics</li>
@@ -2209,7 +2209,7 @@ function openMulticoreSimulator() {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
                             <i class="fas fa-microchip"></i> Number of Cores:
                         </label>
-                        <select id="numCoresSelect" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; background: var(--input-bg, #fff); color: var(--text-primary); font-size: 1rem;">
+                        <select id="numCoresSelect" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
                             <option value="2">2 Cores (Dual-Core)</option>
                             <option value="4" selected>4 Cores (Quad-Core)</option>
                             <option value="8">8 Cores (Octa-Core)</option>
@@ -2220,7 +2220,7 @@ function openMulticoreSimulator() {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
                             <i class="fas fa-cogs"></i> Scheduling Algorithm:
                         </label>
-                        <select id="multicoreAlgoSelect" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; background: var(--input-bg, #fff); color: var(--text-primary); font-size: 1rem;">
+                        <select id="multicoreAlgoSelect" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
                             <option value="fcfs">FCFS</option>
                             <option value="sjf">SJF (Non-Preemptive)</option>
                             <option value="sjf_preemptive">SJF Preemptive (SRTF)</option>
@@ -2236,29 +2236,29 @@ function openMulticoreSimulator() {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
                             Time Quantum:
                         </label>
-                        <input type="number" id="multicoreQuantum" value="2" min="1" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; background: var(--input-bg, #fff); color: var(--text-primary); font-size: 1rem;">
+                        <input type="number" id="multicoreQuantum" value="2" min="1" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
                     </div>
                     
                     <div id="multicoreThresholdGroup" style="display: none;">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
                             EAH Threshold:
                         </label>
-                        <input type="number" id="multicoreThreshold" placeholder="Auto" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; background: var(--input-bg, #fff); color: var(--text-primary); font-size: 1rem;">
+                        <input type="number" id="multicoreThreshold" placeholder="Auto" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
                     </div>
                 </div>
                 
-                <div style="background: var(--warning-bg, #fff3e0); border-left: 4px solid var(--warning, #ff9800); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                <div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
                     <div style="display: flex; align-items: start; gap: 0.75rem;">
-                        <i class="fas fa-exclamation-triangle" style="color: var(--warning, #ff9800); margin-top: 0.2rem;"></i>
-                        <div style="flex: 1; font-size: 0.85rem; line-height: 1.6;">
-                            <strong>Note:</strong> The simulation will use the current processes in the input table. 
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-top: 0.2rem;"></i>
+                        <div style="flex: 1; font-size: 0.85rem; line-height: 1.6; color: var(--text-primary);">
+                            <strong style="color: var(--text-primary);">Note:</strong> The simulation will use the current processes in the input table. 
                             Make sure you have processes defined before running the multi-core simulation.
                         </div>
                     </div>
                 </div>
                 
                 <div id="multicoreResults" style="display: none; margin-top: 1.5rem;">
-                    <h3 style="margin: 0 0 1rem 0; color: var(--text-primary); border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem;">
+                    <h3 style="margin: 0 0 1rem 0; color: var(--text-primary); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem;">
                         <i class="fas fa-chart-bar"></i> Simulation Results
                     </h3>
                     <div id="multicoreResultsContent"></div>

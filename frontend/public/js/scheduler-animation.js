@@ -27,26 +27,26 @@ class SchedulerAnimation {
         const maxTime = Math.max(...this.gantt.map(seg => seg.end));
         
         const html = `
-            <div class="animation-container" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div class="animation-container" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); overflow: hidden;">
                 <!-- Controls -->
-                <div class="animation-controls" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-                    <button id="play-btn-${this.container.id}" class="btn btn-primary" style="padding: 0.5rem 1rem;">
+                <div class="animation-controls" style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                    <button id="play-btn-${this.container.id}" class="btn btn-primary" style="padding: 0.5rem 1rem; flex-shrink: 0;">
                         <i class="fas fa-play"></i> Play
                     </button>
-                    <button id="pause-btn-${this.container.id}" class="btn btn-secondary" style="padding: 0.5rem 1rem;" disabled>
+                    <button id="pause-btn-${this.container.id}" class="btn btn-secondary" style="padding: 0.5rem 1rem; flex-shrink: 0;" disabled>
                         <i class="fas fa-pause"></i> Pause
                     </button>
-                    <button id="step-btn-${this.container.id}" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+                    <button id="step-btn-${this.container.id}" class="btn btn-secondary" style="padding: 0.5rem 1rem; flex-shrink: 0;">
                         <i class="fas fa-step-forward"></i> Step
                     </button>
-                    <button id="reset-btn-${this.container.id}" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+                    <button id="reset-btn-${this.container.id}" class="btn btn-secondary" style="padding: 0.5rem 1rem; flex-shrink: 0;">
                         <i class="fas fa-undo"></i> Reset
                     </button>
                     
-                    <div style="flex: 1; display: flex; align-items: center; gap: 0.5rem;">
-                        <label style="font-size: 0.9rem; color: var(--text-secondary);">Speed:</label>
-                        <input type="range" id="speed-slider-${this.container.id}" min="100" max="2000" value="1000" step="100" style="flex: 1;">
-                        <span id="speed-label-${this.container.id}" style="font-size: 0.85rem; color: var(--text-secondary); min-width: 60px;">1.0x</span>
+                    <div style="flex: 1 1 250px; display: flex; align-items: center; gap: 0.5rem; min-width: 200px;">
+                        <label style="font-size: 0.9rem; color: var(--text-primary); flex-shrink: 0;">Speed:</label>
+                        <input type="range" id="speed-slider-${this.container.id}" min="100" max="2000" value="1000" step="100" style="flex: 1; min-width: 100px;">
+                        <span id="speed-label-${this.container.id}" style="font-size: 0.85rem; color: var(--text-primary); min-width: 50px; text-align: right;">1.0x</span>
                     </div>
                 </div>
                 
