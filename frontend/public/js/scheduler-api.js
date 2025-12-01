@@ -40,17 +40,23 @@ const API = {
     /**
      * Compare all algorithms
      */
-    async compareAlgorithms(processes, quantum = 2) {
+    async compareAlgorithms(processes, quantum = 2, taskThreshold = null) {
         try {
+            const payload = {
+                processes,
+                quantum: parseInt(quantum)
+            };
+            
+            if (taskThreshold !== null && taskThreshold !== '') {
+                payload.task_threshold = parseFloat(taskThreshold);
+            }
+            
             const response = await fetch(`${API_BASE_URL}/api/compare`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    processes,
-                    quantum: parseInt(quantum)
-                })
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) {

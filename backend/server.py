@@ -61,6 +61,7 @@ class EnergyRequest(BaseModel):
 class CompareRequest(BaseModel):
     processes: List[ProcessInput]
     quantum: Optional[int] = 2
+    task_threshold: Optional[float] = None
 
 
 # ============================================================================
@@ -255,6 +256,7 @@ async def compare_algorithms(request: CompareRequest):
     try:
         processes = [p.dict() for p in request.processes]
         quantum = request.quantum or 2
+        threshold = request.task_threshold
         
         if not processes:
             raise HTTPException(status_code=400, detail='No processes provided')
@@ -268,7 +270,7 @@ async def compare_algorithms(request: CompareRequest):
             ('sjf_preemptive', lambda: sjf_preemptive(processes)),
             ('round_robin', lambda: round_robin(processes, quantum)),
             ('priority', lambda: priority_scheduling(processes, False)),
-            ('eah', lambda: energy_aware_hybrid(processes, None))
+            ('eah', lambda: energy_aware_hybrid(processes, threshold))
         ]
         
         for algo_name, algo_func in algorithms:

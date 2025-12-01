@@ -437,11 +437,12 @@ async function compareAll() {
     }
     
     const quantum = document.getElementById('quantum').value;
+    const threshold = document.getElementById('threshold').value;
     
     try {
         showLoading('Comparing all algorithms...');
         
-        const comparisonData = await API.compareAlgorithms(processes, quantum);
+        const comparisonData = await API.compareAlgorithms(processes, quantum, threshold);
         
         displayComparison(comparisonData);
         switchTab('compare');
@@ -465,9 +466,19 @@ function displayComparison(comparisonData) {
     
     let html = '<div class="comparison-container">';
     
+    // Configuration Info
+    const quantum = document.getElementById('quantum').value;
+    const threshold = document.getElementById('threshold').value || 'Auto';
+    html += `
+        <div class="alert alert-info" style="margin-bottom: 1rem; padding: 1rem; display: flex; gap: 2rem; align-items: center; font-size: 0.95rem;">
+            <div><i class="fas fa-cog"></i> <strong>Time Quantum:</strong> ${quantum}</div>
+            <div><i class="fas fa-sliders-h"></i> <strong>EAH Threshold:</strong> ${threshold}</div>
+        </div>
+    `;
+    
     // Best Algorithm Summary
     html += `
-        <div class="alert alert-success" style="margin-bottom: 2rem; padding: 2rem;">
+        <div class="alert alert-success" style="margin-bottom: 2rem; padding: 2rem;">`;
             <div class="best-algorithm-header">
                 <i class="fas fa-trophy"></i>
                 <div class="best-algorithm-text">
