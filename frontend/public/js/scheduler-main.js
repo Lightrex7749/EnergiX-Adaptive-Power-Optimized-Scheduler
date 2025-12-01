@@ -1489,3 +1489,448 @@ function exportBatchResultsCSV() {
     
     showAlert('Batch results exported successfully!', 'success');
 }
+
+/**
+ * Performance Prediction Wizard
+ */
+function openPredictionWizard() {
+    // Create modal overlay
+    const modal = document.createElement('div');
+    modal.id = 'predictionWizard';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 2rem;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: var(--bg-primary); border-radius: 12px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+            <div style="padding: 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0;"><i class="fas fa-magic"></i> Algorithm Prediction Wizard</h2>
+                <button onclick="closePredictionWizard()" style="background: none; border: none; font-size: 1.5rem; color: var(--text-secondary); cursor: pointer; padding: 0.5rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="wizardContent" style="padding: 2rem;">
+                <div id="wizardStep1">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Step 1: Workload Type</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">What type of workload will you be scheduling?</p>
+                    
+                    <div class="wizard-options" style="display: grid; gap: 1rem;">
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="workloadType" value="interactive" style="margin-right: 1rem;">
+                            <div>
+                                <strong>🖥️ Interactive / Real-time</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    User-facing apps, games, UI responsiveness critical
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="workloadType" value="batch" style="margin-right: 1rem;">
+                            <div>
+                                <strong>📦 Batch Processing</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Background jobs, data processing, throughput matters
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="workloadType" value="mixed" style="margin-right: 1rem;">
+                            <div>
+                                <strong>🔀 Mixed Workload</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Combination of interactive and batch tasks
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <button onclick="wizardNext(2)" class="btn btn-primary" style="margin-top: 2rem; width: 100%;">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div id="wizardStep2" style="display: none;">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Step 2: Task Characteristics</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">How would you describe your tasks?</p>
+                    
+                    <div class="wizard-options" style="display: grid; gap: 1rem;">
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="taskCharacteristics" value="short" style="margin-right: 1rem;">
+                            <div>
+                                <strong>⚡ Mostly Short Tasks</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Most tasks complete quickly (< 10 time units)
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="taskCharacteristics" value="long" style="margin-right: 1rem;">
+                            <div>
+                                <strong>🐌 Mostly Long Tasks</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Tasks take significant time (> 20 time units)
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="taskCharacteristics" value="varied" style="margin-right: 1rem;">
+                            <div>
+                                <strong>📊 Varied Task Lengths</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Mix of short, medium, and long tasks
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button onclick="wizardPrev(1)" class="btn btn-secondary" style="flex: 1;">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button onclick="wizardNext(3)" class="btn btn-primary" style="flex: 1;">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="wizardStep3" style="display: none;">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Step 3: Priority Requirements</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Do tasks have different priority levels?</p>
+                    
+                    <div class="wizard-options" style="display: grid; gap: 1rem;">
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="priorityNeeds" value="critical" style="margin-right: 1rem;">
+                            <div>
+                                <strong>🚨 Critical Priority Differences</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Some tasks must run before others (emergency, deadlines)
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="priorityNeeds" value="equal" style="margin-right: 1rem;">
+                            <div>
+                                <strong>⚖️ All Tasks Equal</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Fairness is key, no task more important than another
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="priorityNeeds" value="some" style="margin-right: 1rem;">
+                            <div>
+                                <strong>📋 Some Priority Levels</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Moderate priority differences, but not critical
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button onclick="wizardPrev(2)" class="btn btn-secondary" style="flex: 1;">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button onclick="wizardNext(4)" class="btn btn-primary" style="flex: 1;">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="wizardStep4" style="display: none;">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary);">Step 4: Energy Concerns</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">How important is energy efficiency?</p>
+                    
+                    <div class="wizard-options" style="display: grid; gap: 1rem;">
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="energyConcern" value="critical" style="margin-right: 1rem;">
+                            <div>
+                                <strong>🔋 Energy Critical</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Battery-powered, mobile, IoT - minimize energy use
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="energyConcern" value="moderate" style="margin-right: 1rem;">
+                            <div>
+                                <strong>⚡ Moderate Concern</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Consider energy but performance is also important
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="wizard-option" style="display: flex; align-items: center; padding: 1rem; background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="energyConcern" value="low" style="margin-right: 1rem;">
+                            <div>
+                                <strong>🔌 Low Priority</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Plugged in, performance over energy
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button onclick="wizardPrev(3)" class="btn btn-secondary" style="flex: 1;">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button onclick="generatePrediction()" class="btn btn-success" style="flex: 1;">
+                            <i class="fas fa-magic"></i> Get Recommendation
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="wizardStep5" style="display: none;">
+                    <!-- Prediction results will be inserted here -->
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add CSS for hover effects
+    const style = document.createElement('style');
+    style.textContent = `
+        .wizard-option:hover {
+            border-color: var(--primary) !important;
+            background: var(--bg-tertiary) !important;
+        }
+        .wizard-option input:checked ~ div {
+            color: var(--primary);
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function closePredictionWizard() {
+    const modal = document.getElementById('predictionWizard');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function wizardNext(step) {
+    // Hide all steps
+    for (let i = 1; i <= 5; i++) {
+        const stepEl = document.getElementById(`wizardStep${i}`);
+        if (stepEl) stepEl.style.display = 'none';
+    }
+    
+    // Show target step
+    const targetStep = document.getElementById(`wizardStep${step}`);
+    if (targetStep) targetStep.style.display = 'block';
+}
+
+function wizardPrev(step) {
+    wizardNext(step);
+}
+
+function generatePrediction() {
+    const workloadType = document.querySelector('input[name="workloadType"]:checked')?.value;
+    const taskCharacteristics = document.querySelector('input[name="taskCharacteristics"]:checked')?.value;
+    const priorityNeeds = document.querySelector('input[name="priorityNeeds"]:checked')?.value;
+    const energyConcern = document.querySelector('input[name="energyConcern"]:checked')?.value;
+    
+    if (!workloadType || !taskCharacteristics || !priorityNeeds || !energyConcern) {
+        showAlert('Please answer all questions', 'error');
+        return;
+    }
+    
+    // Algorithm prediction logic
+    const scores = {
+        'FCFS': 0,
+        'SJF Non-Preemptive': 0,
+        'SJF Preemptive (SRTF)': 0,
+        'Round Robin': 0,
+        'Priority Scheduling': 0,
+        'Energy-Aware Hybrid (EAH)': 0
+    };
+    
+    // Workload type scoring
+    if (workloadType === 'interactive') {
+        scores['Round Robin'] += 30;
+        scores['SJF Preemptive (SRTF)'] += 25;
+        scores['Priority Scheduling'] += 20;
+    } else if (workloadType === 'batch') {
+        scores['SJF Non-Preemptive'] += 30;
+        scores['FCFS'] += 20;
+        scores['Energy-Aware Hybrid (EAH)'] += 25;
+    } else {
+        scores['Round Robin'] += 20;
+        scores['Energy-Aware Hybrid (EAH)'] += 30;
+        scores['Priority Scheduling'] += 15;
+    }
+    
+    // Task characteristics scoring
+    if (taskCharacteristics === 'short') {
+        scores['SJF Non-Preemptive'] += 30;
+        scores['SJF Preemptive (SRTF)'] += 25;
+        scores['Round Robin'] += 20;
+    } else if (taskCharacteristics === 'long') {
+        scores['FCFS'] += 25;
+        scores['Energy-Aware Hybrid (EAH)'] += 30;
+        scores['Round Robin'] += 15;
+    } else {
+        scores['Energy-Aware Hybrid (EAH)'] += 30;
+        scores['Priority Scheduling'] += 20;
+        scores['Round Robin'] += 25;
+    }
+    
+    // Priority needs scoring
+    if (priorityNeeds === 'critical') {
+        scores['Priority Scheduling'] += 40;
+        scores['SJF Preemptive (SRTF)'] += 20;
+    } else if (priorityNeeds === 'equal') {
+        scores['Round Robin'] += 35;
+        scores['FCFS'] += 20;
+    } else {
+        scores['Priority Scheduling'] += 20;
+        scores['Round Robin'] += 15;
+        scores['Energy-Aware Hybrid (EAH)'] += 15;
+    }
+    
+    // Energy concern scoring
+    if (energyConcern === 'critical') {
+        scores['Energy-Aware Hybrid (EAH)'] += 40;
+        scores['SJF Non-Preemptive'] += 15;
+    } else if (energyConcern === 'moderate') {
+        scores['Energy-Aware Hybrid (EAH)'] += 25;
+        scores['Round Robin'] += 10;
+    } else {
+        scores['SJF Preemptive (SRTF)'] += 15;
+        scores['Priority Scheduling'] += 10;
+    }
+    
+    // Sort by score
+    const sortedAlgos = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    const recommended = sortedAlgos[0];
+    const alternatives = sortedAlgos.slice(1, 4);
+    
+    // Generate explanation
+    let explanation = '';
+    if (workloadType === 'interactive') {
+        explanation += 'For interactive workloads with responsiveness requirements, ';
+    } else if (workloadType === 'batch') {
+        explanation += 'For batch processing focused on throughput, ';
+    } else {
+        explanation += 'For mixed workloads balancing multiple concerns, ';
+    }
+    
+    if (taskCharacteristics === 'short' && priorityNeeds !== 'critical') {
+        explanation += 'shortest-job-first approaches minimize average waiting time. ';
+    } else if (priorityNeeds === 'critical') {
+        explanation += 'priority-based scheduling ensures critical tasks execute first. ';
+    } else if (workloadType === 'interactive' || priorityNeeds === 'equal') {
+        explanation += 'round-robin provides fairness and prevents starvation. ';
+    }
+    
+    if (energyConcern === 'critical') {
+        explanation += 'Energy-aware approaches use DVFS to minimize power consumption.';
+    } else if (taskCharacteristics === 'varied') {
+        explanation += 'Hybrid approaches adapt to varying task characteristics.';
+    } else {
+        explanation += 'This algorithm balances performance and resource utilization.';
+    }
+    
+    displayPredictionResults(recommended, alternatives, explanation, {
+        workloadType,
+        taskCharacteristics,
+        priorityNeeds,
+        energyConcern
+    });
+}
+
+function displayPredictionResults(recommended, alternatives, explanation, answers) {
+    const resultDiv = document.getElementById('wizardStep5');
+    
+    const html = `
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🎯</div>
+            <h3 style="color: var(--success); margin-bottom: 0.5rem;">Recommended Algorithm</h3>
+            <h2 style="color: var(--primary); font-size: 2rem; margin: 1rem 0;">${recommended[0]}</h2>
+            <div style="display: inline-block; padding: 0.5rem 1rem; background: var(--success); color: white; border-radius: 20px; font-weight: 600;">
+                Confidence Score: ${recommended[1]}/100
+            </div>
+        </div>
+        
+        <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 2rem;">
+            <h4 style="margin-top: 0; color: var(--primary);">Why This Algorithm?</h4>
+            <p style="color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                ${explanation}
+            </p>
+        </div>
+        
+        <div style="margin-bottom: 2rem;">
+            <h4 style="margin-bottom: 1rem;">Your Workload Profile:</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.9rem;">
+                <div><strong>Type:</strong> ${answers.workloadType}</div>
+                <div><strong>Tasks:</strong> ${answers.taskCharacteristics}</div>
+                <div><strong>Priority:</strong> ${answers.priorityNeeds}</div>
+                <div><strong>Energy:</strong> ${answers.energyConcern}</div>
+            </div>
+        </div>
+        
+        <div>
+            <h4 style="margin-bottom: 1rem;">Alternative Options:</h4>
+            <div style="display: grid; gap: 0.75rem;">
+                ${alternatives.map((alt, i) => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
+                        <span>${i + 2}. ${alt[0]}</span>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">Score: ${alt[1]}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button onclick="closePredictionWizard()" class="btn btn-secondary" style="flex: 1;">
+                Close
+            </button>
+            <button onclick="applyRecommendedAlgorithm('${recommended[0]}')" class="btn btn-success" style="flex: 1;">
+                <i class="fas fa-check"></i> Use This Algorithm
+            </button>
+        </div>
+    `;
+    
+    resultDiv.innerHTML = html;
+    wizardNext(5);
+}
+
+function applyRecommendedAlgorithm(algoName) {
+    const algoMap = {
+        'FCFS': 'fcfs',
+        'SJF Non-Preemptive': 'sjf',
+        'SJF Preemptive (SRTF)': 'sjf_preemptive',
+        'Round Robin': 'round_robin',
+        'Priority Scheduling': 'priority',
+        'Energy-Aware Hybrid (EAH)': 'eah'
+    };
+    
+    const algoValue = algoMap[algoName];
+    if (algoValue) {
+        document.getElementById('algorithm').value = algoValue;
+        closePredictionWizard();
+        showAlert(`Algorithm set to: ${algoName}`, 'success');
+    }
+}
