@@ -488,7 +488,7 @@ function displayComparison(comparisonData) {
     
     // Best Algorithm Summary
     html += `
-        <div class="alert alert-success" style="margin-bottom: 2rem; padding: 2rem;">`;
+        <div class="alert alert-success" style="margin-bottom: 2rem; padding: 2rem;">
             <div class="best-algorithm-header">
                 <i class="fas fa-trophy"></i>
                 <div class="best-algorithm-text">
