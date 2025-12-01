@@ -578,18 +578,35 @@ function displayComparison(comparisonData) {
                         <span class="comparison-metric-label">Context Switches</span>
                         <span class="comparison-metric-value">${algo.context_switches}${algo.algorithm === bestAlgorithms.switches.name ? ' ⭐' : ''}</span>
                     </div>
-                    ${algo.advanced_metrics ? `
-                    <div class="comparison-metric-advanced" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
-                            <div><i class="fas fa-microchip"></i> CPU: ${algo.advanced_metrics.cpu_utilization}%</div>
-                            <div><i class="fas fa-tachometer-alt"></i> Throughput: ${algo.advanced_metrics.throughput}</div>
-                            <div><i class="fas fa-stopwatch"></i> Response: ${algo.advanced_metrics.avg_response_time}</div>
-                            <div><i class="fas fa-balance-scale"></i> Fairness: ${algo.advanced_metrics.fairness_index}</div>
-                        </div>
-                    </div>
-                    ` : ''}
                 </div>
             `;
+            
+            // Add advanced metrics if available
+            if (algo.advanced_metrics) {
+                html += `
+                <div class="comparison-metric-advanced" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--text-primary);">Advanced Metrics</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.85rem;">
+                        <div style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px;">
+                            <div style="color: var(--text-secondary); font-size: 0.75rem;">CPU Utilization</div>
+                            <div style="font-weight: 600; color: var(--success);">${algo.advanced_metrics.cpu_utilization}%</div>
+                        </div>
+                        <div style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px;">
+                            <div style="color: var(--text-secondary); font-size: 0.75rem;">Throughput</div>
+                            <div style="font-weight: 600; color: var(--primary);">${algo.advanced_metrics.throughput}</div>
+                        </div>
+                        <div style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px;">
+                            <div style="color: var(--text-secondary); font-size: 0.75rem;">Avg Response Time</div>
+                            <div style="font-weight: 600; color: var(--info);">${algo.advanced_metrics.avg_response_time}</div>
+                        </div>
+                        <div style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px;">
+                            <div style="color: var(--text-secondary); font-size: 0.75rem;">Fairness Index</div>
+                            <div style="font-weight: 600; color: var(--warning);">${algo.advanced_metrics.fairness_index}</div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
         }
     });
     
