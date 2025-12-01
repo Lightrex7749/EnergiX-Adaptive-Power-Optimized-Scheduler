@@ -202,50 +202,50 @@ const sampleWorkloads = {
     },
     rr1: {
         name: 'Interactive Fairness - RR Wins',
-        description: 'Equal bursts benefit from fair time-slicing',
+        description: 'Equal bursts with staggered arrivals favor time-slicing',
         processes: [
-            { pid: 1, arrival: 0, burst: 12, priority: 3 },
-            { pid: 2, arrival: 0, burst: 12, priority: 3 },
-            { pid: 3, arrival: 0, burst: 12, priority: 3 },
-            { pid: 4, arrival: 0, burst: 12, priority: 3 }
+            { pid: 1, arrival: 0, burst: 14, priority: 3 },
+            { pid: 2, arrival: 1, burst: 14, priority: 3 },
+            { pid: 3, arrival: 2, burst: 14, priority: 3 }
         ]
     },
     priority1: {
         name: 'Urgent Override - Priority Wins',
         description: 'Critical high-priority task dominates scheduling',
         processes: [
-            { pid: 1, arrival: 0, burst: 15, priority: 5 },
-            { pid: 2, arrival: 0, burst: 4, priority: 1 },
-            { pid: 3, arrival: 0, burst: 12, priority: 5 },
-            { pid: 4, arrival: 0, burst: 8, priority: 4 }
+            { pid: 1, arrival: 0, burst: 18, priority: 5 },
+            { pid: 2, arrival: 0, burst: 3, priority: 1 },
+            { pid: 3, arrival: 0, burst: 15, priority: 5 },
+            { pid: 4, arrival: 0, burst: 9, priority: 3 }
         ]
     },
     eah1: {
         name: 'Hybrid Threshold - EAH Wins',
-        description: 'Mix of short and long tasks crosses threshold optimally',
+        description: 'Strategic mix crosses threshold for optimal hybrid scheduling',
         processes: [
             { pid: 1, arrival: 0, burst: 2, priority: 3 },
             { pid: 2, arrival: 0, burst: 4, priority: 3 },
-            { pid: 3, arrival: 0, burst: 8, priority: 3 },
-            { pid: 4, arrival: 0, burst: 16, priority: 3 }
+            { pid: 3, arrival: 0, burst: 7, priority: 3 },
+            { pid: 4, arrival: 0, burst: 18, priority: 3 },
+            { pid: 5, arrival: 0, burst: 20, priority: 3 }
         ]
     },
     rr2: {
         name: 'Prevent Starvation - RR Wins',
-        description: 'Long job avoided by SJF, RR ensures fairness',
+        description: 'Continuous arrivals where RR maintains fairness best',
         processes: [
-            { pid: 1, arrival: 0, burst: 20, priority: 3 },
-            { pid: 2, arrival: 1, burst: 5, priority: 3 },
-            { pid: 3, arrival: 2, burst: 5, priority: 3 }
+            { pid: 1, arrival: 0, burst: 22, priority: 3 },
+            { pid: 2, arrival: 2, burst: 6, priority: 3 },
+            { pid: 3, arrival: 4, burst: 6, priority: 3 }
         ]
     },
     priority2: {
         name: 'Emergency Task - Priority Wins',
-        description: 'Extreme priority gap favors priority scheduling',
+        description: 'Extreme priority gap with urgent short task',
         processes: [
-            { pid: 1, arrival: 0, burst: 14, priority: 5 },
-            { pid: 2, arrival: 0, burst: 5, priority: 1 },
-            { pid: 3, arrival: 0, burst: 10, priority: 4 }
+            { pid: 1, arrival: 0, burst: 16, priority: 5 },
+            { pid: 2, arrival: 0, burst: 2, priority: 1 },
+            { pid: 3, arrival: 0, burst: 12, priority: 4 }
         ]
     },
     fcfs2: {
@@ -259,12 +259,14 @@ const sampleWorkloads = {
     },
     eah2: {
         name: 'Energy Efficiency - EAH Wins',
-        description: 'Context switch costs high, EAH minimizes transitions',
+        description: 'Large task mix where hybrid approach minimizes energy',
         processes: [
-            { pid: 1, arrival: 0, burst: 3, priority: 3 },
-            { pid: 2, arrival: 0, burst: 4, priority: 3 },
-            { pid: 3, arrival: 0, burst: 10, priority: 3 },
-            { pid: 4, arrival: 0, burst: 15, priority: 3 }
+            { pid: 1, arrival: 0, burst: 1, priority: 3 },
+            { pid: 2, arrival: 0, burst: 3, priority: 3 },
+            { pid: 3, arrival: 0, burst: 4, priority: 3 },
+            { pid: 4, arrival: 0, burst: 14, priority: 3 },
+            { pid: 5, arrival: 0, burst: 18, priority: 3 },
+            { pid: 6, arrival: 0, burst: 20, priority: 3 }
         ]
     }
 };
