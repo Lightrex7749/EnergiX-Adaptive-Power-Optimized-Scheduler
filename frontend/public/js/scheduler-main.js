@@ -466,13 +466,23 @@ function displayComparison(comparisonData) {
     
     let html = '<div class="comparison-container">';
     
-    // Configuration Info
+    // Configuration Info and Export Buttons
     const quantum = document.getElementById('quantum').value;
     const threshold = document.getElementById('threshold').value || 'Auto';
     html += `
-        <div class="alert alert-info" style="margin-bottom: 1rem; padding: 1rem; display: flex; gap: 2rem; align-items: center; font-size: 0.95rem;">
-            <div><i class="fas fa-cog"></i> <strong>Time Quantum:</strong> ${quantum}</div>
-            <div><i class="fas fa-sliders-h"></i> <strong>EAH Threshold:</strong> ${threshold}</div>
+        <div class="alert alert-info" style="margin-bottom: 1rem; padding: 1rem; display: flex; gap: 2rem; align-items: center; font-size: 0.95rem; justify-content: space-between;">
+            <div style="display: flex; gap: 2rem;">
+                <div><i class="fas fa-cog"></i> <strong>Time Quantum:</strong> ${quantum}</div>
+                <div><i class="fas fa-sliders-h"></i> <strong>EAH Threshold:</strong> ${threshold}</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button onclick="exportComparisonCSV()" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+                    <i class="fas fa-file-csv"></i> Export CSV
+                </button>
+                <button onclick="exportComparisonImage()" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+                    <i class="fas fa-image"></i> Export Image
+                </button>
+            </div>
         </div>
     `;
     
@@ -833,6 +843,76 @@ function exportResults() {
     
     URL.revokeObjectURL(url);
     showAlert('Results exported successfully!', 'success');
+}
+
+/**
+ * Export Comparison as CSV
+ */
+function exportComparisonCSV() {
+    const compareContent = document.getElementById('compareContent');
+    if (!compareContent || compareContent.innerHTML === '') {
+        showAlert('No comparison data to export', 'error');
+        return;
+    }
+
+    // Get all algorithm data from the comparison cards
+    const comparisonCards = compareContent.querySelectorAll('.comparison-card:not(.best-algorithm)');
+    
+    let csv = 'Algorithm,Completion Time,Avg Turnaround,Avg Waiting,Total Energy,Context Switches\n';
+    
+    comparisonCards.forEach(card => {
+        const algorithm = card.querySelector('h3')?.textContent || '';
+        const metrics = card.querySelectorAll('.comparison-metric-value');
+        if (metrics.length >= 5) {
+            const values = Array.from(metrics).map(m => m.textContent.replace(' ⭐', '').trim());
+            csv += `"${algorithm}",${values.join(',')}\n`;
+        }
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `comparison_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    showAlert('CSV exported successfully!', 'success');
+}
+
+/**
+ * Export Comparison as Image
+ */
+async function exportComparisonImage() {
+    const compareContent = document.getElementById('compareContent');
+    if (!compareContent || compareContent.innerHTML === '') {
+        showAlert('No comparison data to export', 'error');
+        return;
+    }
+
+    try {
+        // Use html2canvas library (need to add script tag)
+        if (typeof html2canvas === 'undefined') {
+            showAlert('Export feature requires additional library. Downloading screenshot manually...', 'info');
+            // Fallback: Open print dialog
+            window.print();
+            return;
+        }
+        
+        const canvas = await html2canvas(compareContent);
+        canvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `comparison_${Date.now()}.png`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showAlert('Image exported successfully!', 'success');
+        });
+    } catch (error) {
+        showAlert('Error exporting image. Try using browser Print instead.', 'error');
+        console.error(error);
+    }
 }
 
 /**
