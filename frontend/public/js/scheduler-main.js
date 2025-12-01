@@ -271,6 +271,137 @@ const sampleWorkloads = {
     }
 };
 
+/**
+ * Real-World Scenario Templates
+ * Based on actual workload patterns from different domains
+ */
+const scenarioTemplates = {
+    webserver: {
+        name: '🌐 Web Server Workload',
+        description: 'HTTP request handling with mixed short/long requests, periodic background tasks',
+        characteristics: 'Mostly short requests (50-200ms), occasional long queries (1-3s), high concurrency',
+        processes: [
+            { pid: 1, arrival: 0, burst: 2, priority: 2, label: 'Static File Request' },
+            { pid: 2, arrival: 1, burst: 1, priority: 1, label: 'Health Check' },
+            { pid: 3, arrival: 2, burst: 5, priority: 3, label: 'API Query' },
+            { pid: 4, arrival: 3, burst: 1, priority: 2, label: 'Static File Request' },
+            { pid: 5, arrival: 4, burst: 15, priority: 4, label: 'Database Report' },
+            { pid: 6, arrival: 5, burst: 2, priority: 2, label: 'Image Upload' },
+            { pid: 7, arrival: 6, burst: 1, priority: 1, label: 'Ping' },
+            { pid: 8, arrival: 7, burst: 3, priority: 3, label: 'Search Query' },
+            { pid: 9, arrival: 9, burst: 8, priority: 4, label: 'Batch Processing' },
+            { pid: 10, arrival: 10, burst: 2, priority: 2, label: 'File Download' }
+        ]
+    },
+    videoencoding: {
+        name: '🎬 Video Encoding',
+        description: 'Video transcoding pipeline with different resolution tasks',
+        characteristics: 'CPU-intensive, long-running tasks with different priorities based on resolution',
+        processes: [
+            { pid: 1, arrival: 0, burst: 25, priority: 3, label: '4K Encode' },
+            { pid: 2, arrival: 2, burst: 12, priority: 2, label: '1080p Encode' },
+            { pid: 3, arrival: 3, burst: 6, priority: 2, label: '720p Encode' },
+            { pid: 4, arrival: 5, burst: 3, priority: 1, label: 'Thumbnail Gen' },
+            { pid: 5, arrival: 8, burst: 18, priority: 3, label: '4K HDR Encode' },
+            { pid: 6, arrival: 10, burst: 8, priority: 2, label: '1080p Encode' },
+            { pid: 7, arrival: 12, burst: 2, priority: 1, label: 'Preview Gen' }
+        ]
+    },
+    database: {
+        name: '💾 Database Transactions',
+        description: 'Mix of OLTP transactions, batch jobs, and backup operations',
+        characteristics: 'Short transactions (10-50ms), occasional long-running analytics, critical backup windows',
+        processes: [
+            { pid: 1, arrival: 0, burst: 1, priority: 1, label: 'SELECT Query' },
+            { pid: 2, arrival: 1, burst: 2, priority: 2, label: 'INSERT Transaction' },
+            { pid: 3, arrival: 2, burst: 1, priority: 1, label: 'SELECT Query' },
+            { pid: 4, arrival: 3, burst: 20, priority: 5, label: 'Full Table Scan' },
+            { pid: 5, arrival: 4, burst: 1, priority: 1, label: 'SELECT Query' },
+            { pid: 6, arrival: 5, burst: 3, priority: 2, label: 'UPDATE Transaction' },
+            { pid: 7, arrival: 6, burst: 1, priority: 1, label: 'SELECT Query' },
+            { pid: 8, arrival: 8, burst: 15, priority: 4, label: 'Analytics Job' },
+            { pid: 9, arrival: 10, burst: 2, priority: 2, label: 'JOIN Query' },
+            { pid: 10, arrival: 12, burst: 25, priority: 5, label: 'Backup Process' }
+        ]
+    },
+    gaming: {
+        name: '🎮 Gaming System',
+        description: 'Real-time game engine with rendering, physics, AI, and I/O',
+        characteristics: 'Frame-critical rendering (16.6ms @ 60fps), physics calculations, AI updates, asset loading',
+        processes: [
+            { pid: 1, arrival: 0, burst: 2, priority: 1, label: 'Frame Render' },
+            { pid: 2, arrival: 1, burst: 3, priority: 2, label: 'Physics Update' },
+            { pid: 3, arrival: 2, burst: 2, priority: 1, label: 'Frame Render' },
+            { pid: 4, arrival: 3, burst: 4, priority: 3, label: 'AI Processing' },
+            { pid: 5, arrival: 4, burst: 2, priority: 1, label: 'Frame Render' },
+            { pid: 6, arrival: 5, burst: 8, priority: 4, label: 'Asset Loading' },
+            { pid: 7, arrival: 6, burst: 2, priority: 1, label: 'Frame Render' },
+            { pid: 8, arrival: 7, burst: 3, priority: 2, label: 'Audio Processing' },
+            { pid: 9, arrival: 8, burst: 2, priority: 1, label: 'Frame Render' },
+            { pid: 10, arrival: 9, burst: 5, priority: 3, label: 'Network Sync' }
+        ]
+    },
+    scientific: {
+        name: '🔬 Scientific Computing',
+        description: 'HPC workload with simulations, data analysis, and visualization',
+        characteristics: 'Long-running simulations, parallel data processing, periodic checkpoints',
+        processes: [
+            { pid: 1, arrival: 0, burst: 30, priority: 3, label: 'Simulation Run' },
+            { pid: 2, arrival: 5, burst: 15, priority: 2, label: 'Data Analysis' },
+            { pid: 3, arrival: 8, burst: 5, priority: 1, label: 'Checkpoint Save' },
+            { pid: 4, arrival: 10, burst: 25, priority: 3, label: 'Simulation Run' },
+            { pid: 5, arrival: 15, burst: 10, priority: 2, label: 'Statistical Processing' },
+            { pid: 6, arrival: 18, burst: 8, priority: 2, label: 'Visualization' },
+            { pid: 7, arrival: 20, burst: 5, priority: 1, label: 'Result Export' }
+        ]
+    }
+};
+
+/**
+ * Load Scenario Template
+ */
+function loadScenarioTemplate() {
+    const select = document.getElementById('scenarioSelect');
+    const scenarioKey = select.value;
+    
+    if (!scenarioKey) {
+        return;
+    }
+    
+    const scenario = scenarioTemplates[scenarioKey];
+    if (!scenario) {
+        showAlert('Scenario not found', 'error');
+        return;
+    }
+    
+    // Clear existing processes
+    processes = [];
+    
+    // Load scenario processes
+    scenario.processes.forEach(proc => {
+        processes.push({
+            pid: proc.pid,
+            arrival: proc.arrival,
+            burst: proc.burst,
+            priority: proc.priority
+        });
+    });
+    
+    renderProcessTable();
+    
+    // Show scenario info
+    showAlert(
+        `📋 Loaded: ${scenario.name}\n\n` +
+        `${scenario.description}\n\n` +
+        `${scenario.characteristics}\n\n` +
+        `${processes.length} processes loaded`,
+        'success'
+    );
+    
+    // Reset select
+    select.value = '';
+}
+
 function loadSelectedSample() {
     const select = document.getElementById('sampleSelect');
     const sampleKey = select.value;

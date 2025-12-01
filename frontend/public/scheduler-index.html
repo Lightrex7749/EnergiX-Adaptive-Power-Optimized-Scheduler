@@ -70,10 +70,20 @@
                     <div class="process-table-container">
                         <div class="table-header">
                             <h3><i class="fas fa-list"></i> Process List</h3>
-                            <div class="table-actions">
-                                <div class="form-group" style="margin: 0; min-width: 320px;">
+                            <div class="table-actions" style="flex-wrap: wrap; gap: 0.5rem;">
+                                <div class="form-group" style="margin: 0; min-width: 250px;">
+                                    <select id="scenarioSelect" onchange="loadScenarioTemplate()" style="margin: 0;">
+                                        <option value="">🎭 Real-World Scenarios</option>
+                                        <option value="webserver">🌐 Web Server Workload</option>
+                                        <option value="videoencoding">🎬 Video Encoding</option>
+                                        <option value="database">💾 Database Transactions</option>
+                                        <option value="gaming">🎮 Gaming System</option>
+                                        <option value="scientific">🔬 Scientific Computing</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin: 0; min-width: 250px;">
                                     <select id="sampleSelect" onchange="loadSelectedSample()" data-testid="sample-select" style="margin: 0;">
-                                        <option value="">-- Load Sample Workload --</option>
+                                        <option value="">📊 Algorithm Samples</option>
                                         <option value="fcfs1">1️⃣ Staggered Arrivals (FCFS)</option>
                                         <option value="sjf1">2️⃣ All Short Jobs (SJF)</option>
                                         <option value="srtf1">3️⃣ Late Short Job (SRTF)</option>
