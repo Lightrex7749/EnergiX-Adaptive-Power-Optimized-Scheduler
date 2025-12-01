@@ -919,11 +919,12 @@ function determineBestAlgorithms(comparisonData) {
     }
     
     const scores = validAlgos.map(algo => {
-        const normalizedCompletion = parseFloat(algo.completion_time) / parseFloat(bestCompletion.completion_time);
-        const normalizedTurnaround = parseFloat(algo.avg_turnaround) / parseFloat(bestTurnaround.avg_turnaround);
-        const normalizedWaiting = parseFloat(algo.avg_waiting) / parseFloat(bestWaiting.avg_waiting);
-        const normalizedEnergy = parseFloat(algo.total_energy) / parseFloat(bestEnergy.total_energy);
-        const normalizedSwitches = algo.context_switches / (bestSwitches.context_switches || 1);
+        const normalizedCompletion = parseFloat(algo.completion_time) / (parseFloat(bestCompletion.completion_time) || 1);
+        const normalizedTurnaround = parseFloat(algo.avg_turnaround) / (parseFloat(bestTurnaround.avg_turnaround) || 1);
+        const normalizedWaiting = parseFloat(algo.avg_waiting) / (parseFloat(bestWaiting.avg_waiting) || 1);
+        const normalizedEnergy = parseFloat(algo.total_energy) / (parseFloat(bestEnergy.total_energy) || 1);
+        const normalizedSwitches = (bestSwitches.context_switches > 0) ? 
+            algo.context_switches / bestSwitches.context_switches : 1;
         
         // Calculate weighted score (lower is better since we normalized to best=1.0)
         const score = (normalizedCompletion * weights.completion) +

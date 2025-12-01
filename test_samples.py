@@ -131,11 +131,11 @@ def analyze_results(results):
     scores = {}
     for algo_name, metrics in algos.items():
         normalized = {
-            "completion": metrics["completion"] / best_metrics["completion"][1]["completion"],
-            "turnaround": metrics["turnaround"] / best_metrics["turnaround"][1]["turnaround"],
-            "waiting": metrics["waiting"] / best_metrics["waiting"][1]["waiting"],
-            "energy": metrics["energy"] / best_metrics["energy"][1]["energy"],
-            "switches": metrics["switches"] / (best_metrics["switches"][1]["switches"] or 1)
+            "completion": metrics["completion"] / (best_metrics["completion"][1]["completion"] or 1),
+            "turnaround": metrics["turnaround"] / (best_metrics["turnaround"][1]["turnaround"] or 1),
+            "waiting": metrics["waiting"] / (best_metrics["waiting"][1]["waiting"] or 1),
+            "energy": metrics["energy"] / (best_metrics["energy"][1]["energy"] or 1),
+            "switches": metrics["switches"] / (best_metrics["switches"][1]["switches"] or 1) if best_metrics["switches"][1]["switches"] > 0 else 1
         }
         
         score = sum(normalized[k] * weights[k] for k in weights.keys())
