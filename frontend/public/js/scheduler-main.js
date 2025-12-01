@@ -888,39 +888,16 @@ function determineBestAlgorithms(comparisonData) {
     // - Fairness-based (RR): Penalize less for high switches, reward balanced turnaround
     // - Priority-based: Reward respecting priority order (via turnaround of high-priority tasks)
     
+    // Use uniform weights for all algorithms - no bias!
+    // Lower normalized values are better (1.0 = best performance)
+    const weights = { completion: 0.20, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.10 };
+    
     const scores = validAlgos.map(algo => {
         const normalizedCompletion = parseFloat(algo.completion_time) / parseFloat(bestCompletion.completion_time);
         const normalizedTurnaround = parseFloat(algo.avg_turnaround) / parseFloat(bestTurnaround.avg_turnaround);
         const normalizedWaiting = parseFloat(algo.avg_waiting) / parseFloat(bestWaiting.avg_waiting);
         const normalizedEnergy = parseFloat(algo.total_energy) / parseFloat(bestEnergy.total_energy);
         const normalizedSwitches = algo.context_switches / (bestSwitches.context_switches || 1);
-        
-        // Algorithm-specific scoring weights
-        // Each algorithm is scored based on what it's designed to optimize
-        let weights = { completion: 0.20, turnaround: 0.20, waiting: 0.20, energy: 0.20, switches: 0.20 };
-        
-        // Adjust weights based on algorithm type
-        const algoName = algo.algorithm.toLowerCase();
-        
-        if (algoName.includes('fcfs') || algoName.includes('first come')) {
-            // FCFS is simple, favors order of arrival - penalize less for switches but reward completion
-            weights = { completion: 0.25, turnaround: 0.20, waiting: 0.20, energy: 0.20, switches: 0.15 };
-        } else if (algoName.includes('sjf') && algoName.includes('preemptive')) {
-            // SRTF (SJF Preemptive) - optimizes turnaround but has high switches
-            weights = { completion: 0.15, turnaround: 0.30, waiting: 0.25, energy: 0.15, switches: 0.15 };
-        } else if (algoName.includes('sjf') && !algoName.includes('preemptive')) {
-            // SJF Non-Preemptive - great for turnaround/waiting but penalize more for lack of adaptability
-            weights = { completion: 0.20, turnaround: 0.25, waiting: 0.25, energy: 0.20, switches: 0.10 };
-        } else if (algoName.includes('round robin')) {
-            // RR focuses on fairness (turnaround) and accepts higher switches
-            weights = { completion: 0.10, turnaround: 0.40, waiting: 0.30, energy: 0.10, switches: 0.10 };
-        } else if (algoName.includes('energy') || algoName.includes('eah')) {
-            // EAH optimizes for energy and low switches
-            weights = { completion: 0.10, turnaround: 0.20, waiting: 0.15, energy: 0.35, switches: 0.20 };
-        } else if (algoName.includes('priority')) {
-            // Priority focuses on respecting urgency (turnaround of important tasks)
-            weights = { completion: 0.15, turnaround: 0.35, waiting: 0.20, energy: 0.15, switches: 0.15 };
-        }
         
         // Calculate weighted score (lower is better since we normalized to best=1.0)
         const score = (normalizedCompletion * weights.completion) +
