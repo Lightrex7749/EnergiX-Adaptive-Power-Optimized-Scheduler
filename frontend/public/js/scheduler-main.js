@@ -155,92 +155,84 @@ function getProcesses() {
 }
 
 /**
- * Sample Workloads - Carefully designed to showcase different algorithm strengths
+ * Sample Workloads - Strategically designed to showcase different algorithm strengths
  */
 const sampleWorkloads = {
     light: {
-        name: 'Sequential Arrivals - Favors FCFS',
-        description: 'Perfect for FCFS: processes arrive one by one with similar bursts',
+        name: 'Balanced Workload',
+        description: 'General-purpose scenario with varied processes',
         processes: [
-            { pid: 1, arrival: 0, burst: 5, priority: 2 },
-            { pid: 2, arrival: 5, burst: 5, priority: 2 },
-            { pid: 3, arrival: 10, burst: 5, priority: 2 },
-            { pid: 4, arrival: 15, burst: 5, priority: 2 }
+            { pid: 1, arrival: 0, burst: 8, priority: 2 },
+            { pid: 2, arrival: 1, burst: 4, priority: 3 },
+            { pid: 3, arrival: 2, burst: 9, priority: 1 },
+            { pid: 4, arrival: 3, burst: 5, priority: 2 }
         ]
     },
     medium: {
-        name: 'Time-Sharing Workload - Favors Round Robin',
-        description: 'Multiple equal-priority processes compete for CPU - Round Robin provides fairness',
+        name: 'Interactive System - Favors Round Robin',
+        description: 'Multiple processes need fair CPU time - RR provides best responsiveness',
         processes: [
-            { pid: 1, arrival: 0, burst: 20, priority: 2 },
-            { pid: 2, arrival: 0, burst: 20, priority: 2 },
-            { pid: 3, arrival: 0, burst: 20, priority: 2 },
-            { pid: 4, arrival: 0, burst: 20, priority: 2 },
-            { pid: 5, arrival: 1, burst: 20, priority: 2 }
+            { pid: 1, arrival: 0, burst: 24, priority: 2 },
+            { pid: 2, arrival: 0, burst: 24, priority: 2 },
+            { pid: 3, arrival: 0, burst: 24, priority: 2 },
+            { pid: 4, arrival: 0, burst: 24, priority: 2 }
         ]
     },
     heavy: {
-        name: 'Extreme Burst Variance - Favors SJF',
-        description: 'Huge difference between short and long jobs - SJF minimizes waiting',
+        name: 'Mixed Jobs - Favors SJF Non-Preemptive',
+        description: 'Short and long jobs arriving together - SJF minimizes average waiting time',
         processes: [
-            { pid: 1, arrival: 0, burst: 30, priority: 2 },
-            { pid: 2, arrival: 0, burst: 1, priority: 2 },
-            { pid: 3, arrival: 0, burst: 25, priority: 2 },
-            { pid: 4, arrival: 1, burst: 2, priority: 2 },
-            { pid: 5, arrival: 1, burst: 28, priority: 2 },
-            { pid: 6, arrival: 2, burst: 1, priority: 2 },
-            { pid: 7, arrival: 2, burst: 3, priority: 2 }
+            { pid: 1, arrival: 0, burst: 6, priority: 2 },
+            { pid: 2, arrival: 0, burst: 2, priority: 2 },
+            { pid: 3, arrival: 0, burst: 8, priority: 2 },
+            { pid: 4, arrival: 0, burst: 3, priority: 2 },
+            { pid: 5, arrival: 1, burst: 4, priority: 2 },
+            { pid: 6, arrival: 1, burst: 1, priority: 2 }
         ]
     },
     mixed: {
-        name: 'Critical Priority Tasks - Favors Priority Scheduling',
-        description: 'High-priority urgent tasks must run first',
+        name: 'Priority-Based System - Favors Priority Scheduling',
+        description: 'Critical high-priority tasks need immediate execution',
         processes: [
-            { pid: 1, arrival: 0, burst: 15, priority: 5 },
-            { pid: 2, arrival: 0, burst: 8, priority: 1 },
-            { pid: 3, arrival: 1, burst: 12, priority: 5 },
-            { pid: 4, arrival: 1, burst: 6, priority: 1 },
-            { pid: 5, arrival: 2, burst: 20, priority: 4 },
-            { pid: 6, arrival: 2, burst: 4, priority: 1 },
-            { pid: 7, arrival: 3, burst: 10, priority: 2 }
+            { pid: 1, arrival: 0, burst: 10, priority: 3 },
+            { pid: 2, arrival: 0, burst: 1, priority: 1 },
+            { pid: 3, arrival: 0, burst: 2, priority: 1 },
+            { pid: 4, arrival: 1, burst: 1, priority: 1 },
+            { pid: 5, arrival: 2, burst: 5, priority: 2 },
+            { pid: 6, arrival: 3, burst: 8, priority: 3 }
         ]
     },
     io_intensive: {
-        name: 'Frequent Short Bursts - Favors SRTF',
-        description: 'Constantly arriving short tasks - preemption helps',
+        name: 'Responsive System - Favors SRTF',
+        description: 'Short jobs arriving frequently - preemption reduces response time dramatically',
         processes: [
-            { pid: 1, arrival: 0, burst: 5, priority: 2 },
+            { pid: 1, arrival: 0, burst: 8, priority: 2 },
             { pid: 2, arrival: 1, burst: 1, priority: 2 },
             { pid: 3, arrival: 2, burst: 1, priority: 2 },
-            { pid: 4, arrival: 3, burst: 6, priority: 2 },
+            { pid: 4, arrival: 3, burst: 1, priority: 2 },
             { pid: 5, arrival: 4, burst: 1, priority: 2 },
-            { pid: 6, arrival: 5, burst: 1, priority: 2 },
-            { pid: 7, arrival: 6, burst: 5, priority: 2 },
-            { pid: 8, arrival: 7, burst: 1, priority: 2 }
+            { pid: 6, arrival: 5, burst: 1, priority: 2 }
         ]
     },
     cpu_intensive: {
-        name: 'Long CPU-Bound Jobs - Favors EAH',
-        description: 'All long bursts - EAH uses less energy with fewer switches',
+        name: 'Energy-Critical System - Favors EAH',
+        description: 'Long-running tasks where minimizing context switches saves significant energy',
         processes: [
-            { pid: 1, arrival: 0, burst: 25, priority: 2 },
-            { pid: 2, arrival: 1, burst: 30, priority: 2 },
-            { pid: 3, arrival: 2, burst: 28, priority: 2 },
-            { pid: 4, arrival: 3, burst: 22, priority: 2 },
-            { pid: 5, arrival: 4, burst: 35, priority: 2 }
+            { pid: 1, arrival: 0, burst: 12, priority: 2 },
+            { pid: 2, arrival: 1, burst: 15, priority: 2 },
+            { pid: 3, arrival: 2, burst: 18, priority: 2 },
+            { pid: 4, arrival: 3, burst: 10, priority: 2 },
+            { pid: 5, arrival: 4, burst: 20, priority: 2 }
         ]
     },
     realtime: {
-        name: 'Hybrid Short+Long - Favors EAH',
-        description: 'Perfect mix for EAH: short tasks get SJF treatment, long get FCFS',
+        name: 'Simple Sequential - Favors FCFS',
+        description: 'Processes arrive sequentially - no benefit from reordering, FCFS is simplest',
         processes: [
-            { pid: 1, arrival: 0, burst: 2, priority: 2 },
-            { pid: 2, arrival: 0, burst: 25, priority: 2 },
-            { pid: 3, arrival: 1, burst: 3, priority: 2 },
-            { pid: 4, arrival: 2, burst: 30, priority: 2 },
-            { pid: 5, arrival: 3, burst: 1, priority: 2 },
-            { pid: 6, arrival: 4, burst: 28, priority: 2 },
-            { pid: 7, arrival: 5, burst: 2, priority: 2 }
+            { pid: 1, arrival: 0, burst: 4, priority: 2 },
+            { pid: 2, arrival: 4, burst: 5, priority: 2 },
+            { pid: 3, arrival: 9, burst: 3, priority: 2 },
+            { pid: 4, arrival: 12, burst: 6, priority: 2 }
         ]
     }
 };
