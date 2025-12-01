@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 # Import CPU scheduling algorithms
 from algorithms import fcfs, sjf_non_preemptive, sjf_preemptive, round_robin, priority_scheduling, calculate_advanced_metrics
 from energy_aware_scheduler import energy_aware_hybrid, calculate_dvfs_energy
+from multicore_scheduler import multicore_schedule
 
 
 ROOT_DIR = Path(__file__).parent
@@ -62,6 +63,13 @@ class CompareRequest(BaseModel):
     processes: List[ProcessInput]
     quantum: Optional[int] = 2
     task_threshold: Optional[float] = None
+
+class MulticoreRequest(BaseModel):
+    processes: List[ProcessInput]
+    num_cores: int = Field(ge=2, le=8)  # 2-8 cores
+    algorithm: str = "fcfs"
+    quantum: Optional[int] = 2
+    threshold: Optional[float] = None
 
 
 # ============================================================================
@@ -299,6 +307,57 @@ async def compare_algorithms(request: CompareRequest):
         raise
     except Exception as e:
         logger.error(f"Error in compare_algorithms: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post('/multicore')
+async def run_multicore(request: MulticoreRequest):
+    """
+    Run multi-core CPU scheduling simulation
+    
+    Request Body:
+    {
+        "processes": [{"pid": 1, "arrival": 0, "burst": 5, "priority": 1}],
+        "num_cores": 4,
+        "algorithm": "fcfs",
+        "quantum": 2,
+        "threshold": 5
+    }
+    """
+    try:
+        processes = [p.dict() for p in request.processes]
+        
+        if not processes:
+            raise HTTPException(status_code=400, detail='No processes provided')
+        
+        if request.num_cores < 2 or request.num_cores > 8:
+            raise HTTPException(status_code=400, detail='Number of cores must be between 2 and 8')
+        
+        algorithm = request.algorithm.lower()
+        
+        # Run multi-core simulation
+        result = multicore_schedule(
+            processes,
+            request.num_cores,
+            algorithm,
+            request.quantum or 2,
+            request.threshold
+        )
+        
+        # Calculate energy for multi-core (sum across all cores)
+        energy = calculate_dvfs_energy(result['gantt'], result['context_switches'])
+        result['energy'] = energy
+        
+        # Calculate advanced metrics
+        advanced = calculate_advanced_metrics(result, processes)
+        result['advanced_metrics'] = advanced
+        
+        return JSONResponse(content=result)
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in run_multicore: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

@@ -82,5 +82,30 @@ const API = {
             console.error('Health check failed:', error);
             return { status: 'error' };
         }
+    },
+
+    /**
+     * Run multi-core simulation
+     */
+    async runMulticore(config) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/multicore`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Multi-core simulation failed');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Multi-core API Error:', error);
+            throw error;
+        }
     }
 };

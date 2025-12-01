@@ -2163,3 +2163,352 @@ function importSystemProcesses() {
         showAlert(`Import failed: ${error.message}`, 'error');
     }
 }
+
+/**
+ * ============================================================================
+ * FEATURE 10: MULTI-CORE SIMULATION
+ * ============================================================================
+ */
+
+function openMulticoreSimulator() {
+    const modal = document.createElement('div');
+    modal.id = 'multicoreModal';
+    modal.className = 'modal-overlay';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="background: var(--card-bg); border-radius: 12px; max-width: 900px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <div style="padding: 2rem; border-bottom: 2px solid var(--border-color);">
+                <h2 style="margin: 0; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-microchip"></i>
+                    Multi-Core CPU Simulation
+                </h2>
+                <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">
+                    Simulate parallel execution across multiple CPU cores
+                </p>
+            </div>
+            
+            <div style="padding: 2rem;">
+                <div style="background: var(--info-bg, #e3f2fd); border-left: 4px solid var(--info, #2196F3); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <i class="fas fa-info-circle" style="color: var(--info, #2196F3); margin-top: 0.2rem;"></i>
+                        <div style="flex: 1; font-size: 0.9rem; line-height: 1.6;">
+                            <strong>Multi-Core Features:</strong>
+                            <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
+                                <li>Parallel process execution across 2, 4, or 8 cores</li>
+                                <li>Per-core Gantt charts showing individual core workload</li>
+                                <li>Core utilization and load balance metrics</li>
+                                <li>Speedup calculation vs single-core execution</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                            <i class="fas fa-microchip"></i> Number of Cores:
+                        </label>
+                        <select id="numCoresSelect" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; background: var(--input-bg, #fff); color: var(--text-primary); font-size: 1rem;">
+                            <option value="2">2 Cores (Dual-Core)</option>
+                            <option value="4" selected>4 Cores (Quad-Core)</option>
+                            <option value="8">8 Cores (Octa-Core)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                            <i class="fas fa-cogs"></i> Scheduling Algorithm:
+                        </label>
+                        <select id="multicoreAlgoSelect" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; background: var(--input-bg, #fff); color: var(--text-primary); font-size: 1rem;">
+                            <option value="fcfs">FCFS</option>
+                            <option value="sjf">SJF (Non-Preemptive)</option>
+                            <option value="sjf_preemptive">SJF Preemptive (SRTF)</option>
+                            <option value="round_robin" selected>Round Robin</option>
+                            <option value="priority">Priority Scheduling</option>
+                            <option value="eah">Energy-Aware Hybrid</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="multicoreParams" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div id="multicoreQuantumGroup">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                            Time Quantum:
+                        </label>
+                        <input type="number" id="multicoreQuantum" value="2" min="1" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; background: var(--input-bg, #fff); color: var(--text-primary); font-size: 1rem;">
+                    </div>
+                    
+                    <div id="multicoreThresholdGroup" style="display: none;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary);">
+                            EAH Threshold:
+                        </label>
+                        <input type="number" id="multicoreThreshold" placeholder="Auto" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 6px; background: var(--input-bg, #fff); color: var(--text-primary); font-size: 1rem;">
+                    </div>
+                </div>
+                
+                <div style="background: var(--warning-bg, #fff3e0); border-left: 4px solid var(--warning, #ff9800); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning, #ff9800); margin-top: 0.2rem;"></i>
+                        <div style="flex: 1; font-size: 0.85rem; line-height: 1.6;">
+                            <strong>Note:</strong> The simulation will use the current processes in the input table. 
+                            Make sure you have processes defined before running the multi-core simulation.
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="multicoreResults" style="display: none; margin-top: 1.5rem;">
+                    <h3 style="margin: 0 0 1rem 0; color: var(--text-primary); border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem;">
+                        <i class="fas fa-chart-bar"></i> Simulation Results
+                    </h3>
+                    <div id="multicoreResultsContent"></div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button onclick="closeMulticoreSimulator()" class="btn btn-secondary" style="flex: 1;">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                    <button onclick="runMulticoreSimulation()" class="btn btn-success" style="flex: 2;">
+                        <i class="fas fa-play"></i> Run Multi-Core Simulation
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Setup algorithm selector handler
+    const algoSelect = document.getElementById('multicoreAlgoSelect');
+    algoSelect.addEventListener('change', updateMulticoreParams);
+    updateMulticoreParams();
+}
+
+function updateMulticoreParams() {
+    const algorithm = document.getElementById('multicoreAlgoSelect').value;
+    const quantumGroup = document.getElementById('multicoreQuantumGroup');
+    const thresholdGroup = document.getElementById('multicoreThresholdGroup');
+    
+    if (algorithm === 'round_robin') {
+        quantumGroup.style.display = 'block';
+        thresholdGroup.style.display = 'none';
+    } else if (algorithm === 'eah') {
+        quantumGroup.style.display = 'none';
+        thresholdGroup.style.display = 'block';
+    } else {
+        quantumGroup.style.display = 'none';
+        thresholdGroup.style.display = 'none';
+    }
+}
+
+function closeMulticoreSimulator() {
+    const modal = document.getElementById('multicoreModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+async function runMulticoreSimulation() {
+    const processes = getProcesses();
+    
+    if (processes.length === 0) {
+        showAlert('Please add some processes first!', 'error');
+        return;
+    }
+    
+    const numCores = parseInt(document.getElementById('numCoresSelect').value);
+    const algorithm = document.getElementById('multicoreAlgoSelect').value;
+    const quantum = parseInt(document.getElementById('multicoreQuantum').value) || 2;
+    const threshold = parseFloat(document.getElementById('multicoreThreshold').value) || null;
+    
+    const resultsDiv = document.getElementById('multicoreResults');
+    const resultsContent = document.getElementById('multicoreResultsContent');
+    
+    resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Running simulation...</p></div>';
+    resultsDiv.style.display = 'block';
+    
+    try {
+        const response = await API.runMulticore({
+            processes,
+            num_cores: numCores,
+            algorithm,
+            quantum,
+            threshold
+        });
+        
+        displayMulticoreResults(response);
+        
+    } catch (error) {
+        resultsContent.innerHTML = `
+            <div style="background: var(--danger-bg, #ffebee); border-left: 4px solid var(--danger, #f44336); padding: 1rem; border-radius: 4px;">
+                <strong>Error:</strong> ${error.message}
+            </div>
+        `;
+    }
+}
+
+function displayMulticoreResults(data) {
+    const resultsContent = document.getElementById('multicoreResultsContent');
+    
+    // Create summary cards
+    let html = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 8px; color: white;">
+                <div style="font-size: 0.85rem; opacity: 0.9;">Cores Used</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">${data.num_cores}</div>
+                <div style="font-size: 0.8rem; opacity: 0.8;">${data.algorithm}</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1rem; border-radius: 8px; color: white;">
+                <div style="font-size: 0.85rem; opacity: 0.9;">Speedup</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">${data.speedup}x</div>
+                <div style="font-size: 0.8rem; opacity: 0.8;">vs Single-Core</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1rem; border-radius: 8px; color: white;">
+                <div style="font-size: 0.85rem; opacity: 0.9;">Avg Core Util.</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">${data.avg_core_utilization}%</div>
+                <div style="font-size: 0.8rem; opacity: 0.8;">CPU Usage</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1rem; border-radius: 8px; color: white;">
+                <div style="font-size: 0.85rem; opacity: 0.9;">Load Balance</div>
+                <div style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">${data.load_balance_score}</div>
+                <div style="font-size: 0.8rem; opacity: 0.8;">Score (0-100)</div>
+            </div>
+        </div>
+        
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text-primary);">
+                <i class="fas fa-tachometer-alt"></i> Performance Metrics
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                <div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Avg Turnaround</div>
+                    <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary);">${data.metrics.avg_turnaround}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Avg Waiting</div>
+                    <div style="font-size: 1.5rem; font-weight: 600; color: var(--success, #4caf50);">${data.metrics.avg_waiting}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Completion Time</div>
+                    <div style="font-size: 1.5rem; font-weight: 600; color: var(--info, #2196F3);">${data.metrics.total_completion}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Context Switches</div>
+                    <div style="font-size: 1.5rem; font-weight: 600; color: var(--warning, #ff9800);">${data.context_switches}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text-primary);">
+                <i class="fas fa-microchip"></i> Per-Core Statistics
+            </h4>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--bg-secondary); border-bottom: 2px solid var(--border-color);">
+                            <th style="padding: 0.75rem; text-align: left;">Core</th>
+                            <th style="padding: 0.75rem; text-align: center;">Utilization</th>
+                            <th style="padding: 0.75rem; text-align: center;">Busy Time</th>
+                            <th style="padding: 0.75rem; text-align: center;">Processes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.core_utilizations.map(core => `
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem; font-weight: 600;">Core ${core.core_id}</td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    <div style="display: inline-block; background: ${getUtilizationColor(core.utilization)}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600;">
+                                        ${core.utilization}%
+                                    </div>
+                                </td>
+                                <td style="padding: 0.75rem; text-align: center;">${core.busy_time}</td>
+                                <td style="padding: 0.75rem; text-align: center;">${core.processes_completed}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text-primary);">
+                <i class="fas fa-chart-gantt"></i> Per-Core Gantt Charts
+            </h4>
+            ${renderMulticoreGanttCharts(data)}
+        </div>
+    `;
+    
+    resultsContent.innerHTML = html;
+}
+
+function getUtilizationColor(utilization) {
+    if (utilization >= 80) return '#4caf50'; // Green (good)
+    if (utilization >= 60) return '#2196F3'; // Blue (moderate)
+    if (utilization >= 40) return '#ff9800'; // Orange (low)
+    return '#f44336'; // Red (very low)
+}
+
+function renderMulticoreGanttCharts(data) {
+    if (!data.per_core_gantt || data.per_core_gantt.length === 0) {
+        return '<p style="color: var(--text-secondary);">No Gantt chart data available.</p>';
+    }
+    
+    let html = '';
+    
+    data.per_core_gantt.forEach((coreGantt, coreIndex) => {
+        if (coreGantt.length === 0) {
+            html += `
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">
+                        Core ${coreIndex}: <span style="color: var(--text-secondary); font-weight: 400;">Idle</span>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const maxTime = Math.max(...coreGantt.map(seg => seg.end));
+        
+        html += `
+            <div style="margin-bottom: 1.5rem;">
+                <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">
+                    Core ${coreIndex}
+                </div>
+                <div style="position: relative; height: 40px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden;">
+                    ${coreGantt.map(segment => {
+                        const width = ((segment.end - segment.start) / maxTime) * 100;
+                        const left = (segment.start / maxTime) * 100;
+                        const color = getProcessColor(segment.process);
+                        
+                        return `
+                            <div style="position: absolute; left: ${left}%; width: ${width}%; height: 100%; background: ${color}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem; border-right: 1px solid rgba(255,255,255,0.3);" title="${segment.process}: ${segment.start}-${segment.end}">
+                                ${segment.process}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                    <span>0</span>
+                    <span>${maxTime}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    return html;
+}
+
+function getProcessColor(processLabel) {
+    const colors = [
+        '#667eea', '#764ba2', '#f093fb', '#f5576c',
+        '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+        '#fa709a', '#fee140', '#30cfd0', '#330867'
+    ];
+    
+    const hash = processLabel.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+}
