@@ -18,7 +18,7 @@ import uuid
 from datetime import datetime, timezone
 
 # Import CPU scheduling algorithms
-from algorithms import fcfs, sjf_non_preemptive, sjf_preemptive, round_robin, priority_scheduling
+from algorithms import fcfs, sjf_non_preemptive, sjf_preemptive, round_robin, priority_scheduling, calculate_advanced_metrics
 from energy_aware_scheduler import energy_aware_hybrid, calculate_dvfs_energy
 
 
@@ -277,6 +277,7 @@ async def compare_algorithms(request: CompareRequest):
             try:
                 result = algo_func()
                 energy = calculate_dvfs_energy(result['gantt'], result['context_switches'])
+                advanced = calculate_advanced_metrics(result, processes)
                 
                 results[algo_name] = {
                     'algorithm': result['algorithm'],
@@ -286,7 +287,8 @@ async def compare_algorithms(request: CompareRequest):
                     'total_energy': energy['total_energy'],
                     'completion_time': result['metrics']['total_completion'],
                     'gantt': result['gantt'],  # Include gantt chart data
-                    'processes': result['processes']  # Include process details
+                    'processes': result['processes'],  # Include process details
+                    'advanced_metrics': advanced  # Include advanced metrics
                 }
             except Exception as e:
                 results[algo_name] = {'error': str(e)}

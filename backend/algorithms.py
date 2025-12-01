@@ -496,3 +496,58 @@ def priority_scheduling(processes_input: List[Dict], preemptive: bool = False) -
         } for p in completed],
         'metrics': metrics
     }
+
+
+def calculate_advanced_metrics(result: Dict[str, Any], processes_input: List[Dict]) -> Dict[str, Any]:
+    """
+    Calculate advanced performance metrics:
+    - CPU Utilization: (Total burst time / Total completion time) * 100
+    - Throughput: Number of processes / Total completion time
+    - Response Time: Time from arrival to first execution
+    - Fairness Index (Jain's Fairness Index): For turnaround times
+    """
+    gantt = result.get('gantt', [])
+    processes = result.get('processes', [])
+    completion_time = result.get('metrics', {}).get('total_completion', 0)
+    
+    if not processes or completion_time == 0:
+        return {
+            'cpu_utilization': 0,
+            'throughput': 0,
+            'avg_response_time': 0,
+            'fairness_index': 0
+        }
+    
+    # CPU Utilization
+    total_burst = sum(p['burst'] for p in processes)
+    cpu_utilization = round((total_burst / completion_time) * 100, 2) if completion_time > 0 else 0
+    
+    # Throughput (processes per time unit)
+    throughput = round(len(processes) / completion_time, 4) if completion_time > 0 else 0
+    
+    # Response Time (time from arrival to first execution)
+    response_times = []
+    for p in processes:
+        # Find first execution time from gantt
+        first_exec = next((g['start'] for g in gantt if g['pid'] == p['pid']), p['arrival'])
+        response_time = first_exec - p['arrival']
+        response_times.append(response_time)
+    
+    avg_response_time = round(sum(response_times) / len(response_times), 2) if response_times else 0
+    
+    # Fairness Index (Jain's Fairness Index for turnaround times)
+    # Formula: (sum of x_i)^2 / (n * sum of x_i^2)
+    # Where x_i is the turnaround time of process i
+    turnaround_times = [p['turnaround'] for p in processes]
+    sum_tat = sum(turnaround_times)
+    sum_tat_sq = sum(t * t for t in turnaround_times)
+    n = len(turnaround_times)
+    
+    fairness_index = round((sum_tat ** 2) / (n * sum_tat_sq), 4) if sum_tat_sq > 0 else 1.0
+    
+    return {
+        'cpu_utilization': cpu_utilization,
+        'throughput': throughput,
+        'avg_response_time': avg_response_time,
+        'fairness_index': fairness_index
+    }
