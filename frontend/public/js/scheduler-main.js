@@ -564,6 +564,25 @@ function displayComparison(comparisonData) {
     
     html += '</div>';
     
+    // Gantt Charts Section
+    html += '<h3 style="margin: 3rem 0 1rem 0;">Execution Timeline (Gantt Charts)</h3>';
+    html += '<div class="gantt-comparison-container" style="display: grid; gap: 2rem; margin-bottom: 2rem;">';
+    
+    Object.keys(comparisonData).forEach(algoKey => {
+        const algo = comparisonData[algoKey];
+        if (!algo.error && algo.gantt) {
+            const containerId = `gantt-${algoKey}`;
+            html += `
+                <div class="gantt-section" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <h4 style="margin-bottom: 1rem; color: var(--text-primary);">${algo.algorithm}</h4>
+                    <div id="${containerId}"></div>
+                </div>
+            `;
+        }
+    });
+    
+    html += '</div>';
+    
     // Comparison chart
     html += '<div id="comparisonChart"></div>';
     
@@ -573,6 +592,15 @@ function displayComparison(comparisonData) {
     
     setTimeout(() => {
         renderComparisonChart(comparisonData, 'comparisonChart');
+        
+        // Render all Gantt charts
+        Object.keys(comparisonData).forEach(algoKey => {
+            const algo = comparisonData[algoKey];
+            if (!algo.error && algo.gantt) {
+                const containerId = `gantt-${algoKey}`;
+                renderGanttChart(algo.gantt, containerId);
+            }
+        });
     }, 100);
 }
 

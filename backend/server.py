@@ -282,7 +282,9 @@ async def compare_algorithms(request: CompareRequest):
                     'avg_waiting': result['metrics']['avg_waiting'],
                     'context_switches': result['context_switches'],
                     'total_energy': energy['total_energy'],
-                    'completion_time': result['metrics']['total_completion']
+                    'completion_time': result['metrics']['total_completion'],
+                    'gantt': result['gantt'],  # Include gantt chart data
+                    'processes': result['processes']  # Include process details
                 }
             except Exception as e:
                 results[algo_name] = {'error': str(e)}
