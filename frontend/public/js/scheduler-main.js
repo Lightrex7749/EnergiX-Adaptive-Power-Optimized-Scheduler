@@ -428,7 +428,25 @@ function displayComparison(comparisonData) {
             </div>
         </div>
         
-        <div class="best-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div class="best-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div class="best-metric-card">
+                <i class="fas fa-flag-checkered" style="color: var(--success);"></i>
+                <h4>Fastest Completion</h4>
+                <p>${bestAlgorithms.completion.name}</p>
+                <span>${bestAlgorithms.completion.value} time units</span>
+            </div>
+            <div class="best-metric-card">
+                <i class="fas fa-clock" style="color: var(--primary);"></i>
+                <h4>Lowest Turnaround</h4>
+                <p>${bestAlgorithms.turnaround.name}</p>
+                <span>${bestAlgorithms.turnaround.value} time units</span>
+            </div>
+            <div class="best-metric-card">
+                <i class="fas fa-hourglass-half" style="color: var(--info);"></i>
+                <h4>Lowest Wait Time</h4>
+                <p>${bestAlgorithms.waiting.name}</p>
+                <span>${bestAlgorithms.waiting.value} time units</span>
+            </div>
             <div class="best-metric-card">
                 <i class="fas fa-bolt" style="color: var(--warning);"></i>
                 <h4>Lowest Energy</h4>
@@ -436,19 +454,7 @@ function displayComparison(comparisonData) {
                 <span>${bestAlgorithms.energy.value} units</span>
             </div>
             <div class="best-metric-card">
-                <i class="fas fa-clock" style="color: var(--primary);"></i>
-                <h4>Fastest Completion</h4>
-                <p>${bestAlgorithms.turnaround.name}</p>
-                <span>${bestAlgorithms.turnaround.value} time units</span>
-            </div>
-            <div class="best-metric-card">
-                <i class="fas fa-hourglass-half" style="color: var(--success);"></i>
-                <h4>Lowest Wait Time</h4>
-                <p>${bestAlgorithms.waiting.name}</p>
-                <span>${bestAlgorithms.waiting.value} time units</span>
-            </div>
-            <div class="best-metric-card">
-                <i class="fas fa-exchange-alt" style="color: var(--info);"></i>
+                <i class="fas fa-exchange-alt" style="color: #8b5cf6;"></i>
                 <h4>Fewest Switches</h4>
                 <p>${bestAlgorithms.switches.name}</p>
                 <span>${bestAlgorithms.switches.value} switches</span>
@@ -478,6 +484,10 @@ function displayComparison(comparisonData) {
                 <div class="comparison-card${isBest ? ' best-algorithm' : ''}">
                     ${isBest ? '<div class="best-badge"><i class="fas fa-crown"></i> Best Overall</div>' : ''}
                     <h3>${algo.algorithm}</h3>
+                    <div class="comparison-metric${algo.algorithm === bestAlgorithms.completion.name ? ' metric-best' : ''}">
+                        <span class="comparison-metric-label">Completion Time</span>
+                        <span class="comparison-metric-value">${algo.completion_time}${algo.algorithm === bestAlgorithms.completion.name ? ' ⭐' : ''}</span>
+                    </div>
                     <div class="comparison-metric${algo.algorithm === bestAlgorithms.turnaround.name ? ' metric-best' : ''}">
                         <span class="comparison-metric-label">Avg Turnaround Time</span>
                         <span class="comparison-metric-value">${algo.avg_turnaround}${algo.algorithm === bestAlgorithms.turnaround.name ? ' ⭐' : ''}</span>
@@ -486,17 +496,13 @@ function displayComparison(comparisonData) {
                         <span class="comparison-metric-label">Avg Waiting Time</span>
                         <span class="comparison-metric-value">${algo.avg_waiting}${algo.algorithm === bestAlgorithms.waiting.name ? ' ⭐' : ''}</span>
                     </div>
-                    <div class="comparison-metric${algo.algorithm === bestAlgorithms.switches.name ? ' metric-best' : ''}">
-                        <span class="comparison-metric-label">Context Switches</span>
-                        <span class="comparison-metric-value">${algo.context_switches}${algo.algorithm === bestAlgorithms.switches.name ? ' ⭐' : ''}</span>
-                    </div>
                     <div class="comparison-metric${algo.algorithm === bestAlgorithms.energy.name ? ' metric-best' : ''}">
                         <span class="comparison-metric-label">Total Energy</span>
                         <span class="comparison-metric-value" style="color: var(--warning);">${algo.total_energy}${algo.algorithm === bestAlgorithms.energy.name ? ' ⭐' : ''}</span>
                     </div>
-                    <div class="comparison-metric">
-                        <span class="comparison-metric-label">Completion Time</span>
-                        <span class="comparison-metric-value">${algo.completion_time}</span>
+                    <div class="comparison-metric${algo.algorithm === bestAlgorithms.switches.name ? ' metric-best' : ''}">
+                        <span class="comparison-metric-label">Context Switches</span>
+                        <span class="comparison-metric-value">${algo.context_switches}${algo.algorithm === bestAlgorithms.switches.name ? ' ⭐' : ''}</span>
                     </div>
                 </div>
             `;
@@ -544,20 +550,30 @@ function determineBestAlgorithms(comparisonData) {
         algo.context_switches < min.context_switches ? algo : min
     );
     
-    // Calculate overall best using balanced scoring with penalties
-    // Energy: 35%, Turnaround: 20%, Waiting: 20%, Switches: 25%
-    // Higher weight on switches to penalize excessive context switching
+    // Find best completion time
+    const bestCompletion = validAlgos.reduce((min, algo) => 
+        parseFloat(algo.completion_time) < parseFloat(min.completion_time) ? algo : min
+    );
+    
+    // Calculate overall best by comparing 5 core metrics (all equally weighted at 20% each)
+    // 1. Completion Time (20%) - Lower is better
+    // 2. Average Turnaround Time (20%) - Lower is better  
+    // 3. Average Waiting Time (20%) - Lower is better
+    // 4. Energy Consumption (20%) - Lower is better
+    // 5. Context Switches (20%) - Lower is better
     const scores = validAlgos.map(algo => {
-        const normalizedEnergy = parseFloat(algo.total_energy) / parseFloat(bestEnergy.total_energy);
+        const normalizedCompletion = parseFloat(algo.completion_time) / parseFloat(bestCompletion.completion_time);
         const normalizedTurnaround = parseFloat(algo.avg_turnaround) / parseFloat(bestTurnaround.avg_turnaround);
         const normalizedWaiting = parseFloat(algo.avg_waiting) / parseFloat(bestWaiting.avg_waiting);
+        const normalizedEnergy = parseFloat(algo.total_energy) / parseFloat(bestEnergy.total_energy);
         const normalizedSwitches = algo.context_switches / (bestSwitches.context_switches || 1);
         
-        // Composite score with balanced weights
-        const score = (normalizedEnergy * 0.35) + 
+        // Equal weight for all 5 metrics (20% each)
+        const score = (normalizedCompletion * 0.20) +
                      (normalizedTurnaround * 0.20) + 
                      (normalizedWaiting * 0.20) + 
-                     (normalizedSwitches * 0.25);
+                     (normalizedEnergy * 0.20) + 
+                     (normalizedSwitches * 0.20);
         
         return { algo, score };
     });
@@ -566,39 +582,47 @@ function determineBestAlgorithms(comparisonData) {
         current.score < best.score ? current : best
     ).algo;
     
-    // Generate reason for overall best with detailed analysis
+    // Generate reason for overall best with detailed analysis of all 5 metrics
     let reason = '';
     let strengths = [];
     
-    if (overall.algorithm === bestEnergy.algorithm) {
-        strengths.push('lowest energy consumption (' + overall.total_energy + ' units)');
+    if (overall.algorithm === bestCompletion.algorithm) {
+        strengths.push('fastest completion time (' + overall.completion_time + ' time units)');
     }
     if (overall.algorithm === bestTurnaround.algorithm) {
-        strengths.push('fastest average turnaround time (' + overall.avg_turnaround + ' time units)');
+        strengths.push('lowest avg turnaround time (' + overall.avg_turnaround + ')');
     }
     if (overall.algorithm === bestWaiting.algorithm) {
-        strengths.push('minimal average waiting time (' + overall.avg_waiting + ' time units)');
+        strengths.push('lowest avg waiting time (' + overall.avg_waiting + ')');
+    }
+    if (overall.algorithm === bestEnergy.algorithm) {
+        strengths.push('lowest energy consumption (' + overall.total_energy + ' units)');
     }
     if (overall.algorithm === bestSwitches.algorithm) {
         strengths.push('fewest context switches (' + overall.context_switches + ')');
     }
     
-    if (strengths.length > 0) {
-        reason = 'This algorithm excels with ' + strengths.join(', ') + '. ';
+    if (strengths.length >= 3) {
+        reason = 'Dominates with ' + strengths.join(', ') + '. ';
+    } else if (strengths.length > 0) {
+        reason = 'Excels in ' + strengths.join(' and ') + ', while maintaining strong performance across other metrics. ';
     } else {
-        reason = 'This algorithm achieves the best overall balance across all performance metrics. ';
+        reason = 'Achieves the best overall balance across all 5 core metrics: completion time, turnaround time, waiting time, energy consumption, and context switches. ';
     }
     
-    // Add context-specific recommendation
+    // Add context-specific recommendation based on strengths
+    const completionRank = validAlgos.filter(a => parseFloat(a.completion_time) < parseFloat(overall.completion_time)).length + 1;
     const energyRank = validAlgos.filter(a => parseFloat(a.total_energy) < parseFloat(overall.total_energy)).length + 1;
     const switchesRank = validAlgos.filter(a => a.context_switches < overall.context_switches).length + 1;
     
     if (energyRank === 1 && switchesRank === 1) {
-        reason += 'Optimal for battery-powered and mobile devices where energy efficiency is critical.';
-    } else if (overall.algorithm === bestTurnaround.algorithm || overall.algorithm === bestWaiting.algorithm) {
-        reason += 'Best choice when minimizing response time and maximizing throughput are priorities.';
+        reason += 'Ideal for battery-powered mobile and embedded devices where energy efficiency is paramount.';
+    } else if (completionRank === 1 || (overall.algorithm === bestTurnaround.algorithm && overall.algorithm === bestWaiting.algorithm)) {
+        reason += 'Perfect for high-performance systems where speed and responsiveness are critical.';
+    } else if (switchesRank === 1) {
+        reason += 'Excellent for systems where minimizing overhead and maintaining stability are important.';
     } else {
-        reason += 'Provides excellent balance between performance and resource efficiency for general-purpose systems.';
+        reason += 'Great all-around choice for general-purpose computing with balanced requirements.';
     }
     
     return {
@@ -606,9 +630,9 @@ function determineBestAlgorithms(comparisonData) {
             name: overall.algorithm,
             reason: reason
         },
-        energy: {
-            name: bestEnergy.algorithm,
-            value: bestEnergy.total_energy
+        completion: {
+            name: bestCompletion.algorithm,
+            value: bestCompletion.completion_time
         },
         turnaround: {
             name: bestTurnaround.algorithm,
@@ -617,6 +641,10 @@ function determineBestAlgorithms(comparisonData) {
         waiting: {
             name: bestWaiting.algorithm,
             value: bestWaiting.avg_waiting
+        },
+        energy: {
+            name: bestEnergy.algorithm,
+            value: bestEnergy.total_energy
         },
         switches: {
             name: bestSwitches.algorithm,
