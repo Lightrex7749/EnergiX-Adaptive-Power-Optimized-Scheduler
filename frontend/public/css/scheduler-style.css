@@ -227,6 +227,16 @@ body {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.table-actions .form-group {
+    flex: 1;
+}
+
+.table-actions select {
+    width: 100%;
+    font-size: 0.9rem;
 }
 
 .table-wrapper {

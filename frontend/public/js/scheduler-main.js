@@ -154,18 +154,130 @@ function getProcesses() {
     return processes;
 }
 
-function loadSample() {
+/**
+ * Sample Workloads
+ */
+const sampleWorkloads = {
+    light: {
+        name: 'Light Load',
+        description: 'Basic workload with 4 short processes',
+        processes: [
+            { pid: 1, arrival: 0, burst: 5, priority: 2 },
+            { pid: 2, arrival: 1, burst: 3, priority: 1 },
+            { pid: 3, arrival: 2, burst: 8, priority: 3 },
+            { pid: 4, arrival: 3, burst: 6, priority: 2 }
+        ]
+    },
+    medium: {
+        name: 'Medium Load',
+        description: 'Balanced mix of short and long tasks',
+        processes: [
+            { pid: 1, arrival: 0, burst: 3, priority: 1 },
+            { pid: 2, arrival: 0, burst: 9, priority: 2 },
+            { pid: 3, arrival: 1, burst: 2, priority: 1 },
+            { pid: 4, arrival: 2, burst: 12, priority: 3 },
+            { pid: 5, arrival: 3, burst: 4, priority: 2 },
+            { pid: 6, arrival: 4, burst: 1, priority: 1 }
+        ]
+    },
+    heavy: {
+        name: 'Heavy Load',
+        description: 'High process count with varying burst times',
+        processes: [
+            { pid: 1, arrival: 0, burst: 8, priority: 2 },
+            { pid: 2, arrival: 0, burst: 4, priority: 1 },
+            { pid: 3, arrival: 1, burst: 15, priority: 3 },
+            { pid: 4, arrival: 1, burst: 6, priority: 2 },
+            { pid: 5, arrival: 2, burst: 10, priority: 1 },
+            { pid: 6, arrival: 3, burst: 3, priority: 3 },
+            { pid: 7, arrival: 4, burst: 12, priority: 2 },
+            { pid: 8, arrival: 5, burst: 7, priority: 1 }
+        ]
+    },
+    mixed: {
+        name: 'Mixed Workload',
+        description: 'Complex scenario with varied arrival times and priorities',
+        processes: [
+            { pid: 1, arrival: 0, burst: 5, priority: 3 },
+            { pid: 2, arrival: 1, burst: 2, priority: 1 },
+            { pid: 3, arrival: 2, burst: 14, priority: 2 },
+            { pid: 4, arrival: 2, burst: 4, priority: 1 },
+            { pid: 5, arrival: 3, burst: 8, priority: 3 },
+            { pid: 6, arrival: 5, burst: 3, priority: 2 },
+            { pid: 7, arrival: 6, burst: 11, priority: 1 },
+            { pid: 8, arrival: 7, burst: 6, priority: 3 },
+            { pid: 9, arrival: 9, burst: 2, priority: 2 },
+            { pid: 10, arrival: 10, burst: 7, priority: 1 }
+        ]
+    },
+    io_intensive: {
+        name: 'I/O Intensive',
+        description: 'Short CPU bursts simulating I/O-bound processes',
+        processes: [
+            { pid: 1, arrival: 0, burst: 2, priority: 1 },
+            { pid: 2, arrival: 1, burst: 1, priority: 1 },
+            { pid: 3, arrival: 2, burst: 3, priority: 2 },
+            { pid: 4, arrival: 3, burst: 2, priority: 1 },
+            { pid: 5, arrival: 4, burst: 1, priority: 1 },
+            { pid: 6, arrival: 5, burst: 4, priority: 2 }
+        ]
+    },
+    cpu_intensive: {
+        name: 'CPU Intensive',
+        description: 'Long burst times for compute-heavy tasks',
+        processes: [
+            { pid: 1, arrival: 0, burst: 15, priority: 2 },
+            { pid: 2, arrival: 1, burst: 20, priority: 3 },
+            { pid: 3, arrival: 2, burst: 18, priority: 2 },
+            { pid: 4, arrival: 3, burst: 12, priority: 1 },
+            { pid: 5, arrival: 4, burst: 25, priority: 3 }
+        ]
+    },
+    realtime: {
+        name: 'Real-Time Tasks',
+        description: 'High-priority tasks with tight deadlines',
+        processes: [
+            { pid: 1, arrival: 0, burst: 4, priority: 1 },
+            { pid: 2, arrival: 1, burst: 6, priority: 1 },
+            { pid: 3, arrival: 2, burst: 3, priority: 2 },
+            { pid: 4, arrival: 3, burst: 8, priority: 1 },
+            { pid: 5, arrival: 4, burst: 5, priority: 2 },
+            { pid: 6, arrival: 5, burst: 2, priority: 1 },
+            { pid: 7, arrival: 6, burst: 7, priority: 3 }
+        ]
+    }
+};
+
+function loadSelectedSample() {
+    const select = document.getElementById('sampleSelect');
+    const sampleKey = select.value;
+    
+    if (!sampleKey) {
+        return;
+    }
+    
+    const sample = sampleWorkloads[sampleKey];
+    
     clearProcesses();
     processIdCounter = 1;
     
-    const sampleProcesses = [
-        { pid: 1, arrival: 0, burst: 3, priority: 1 },
-        { pid: 2, arrival: 0, burst: 9, priority: 2 },
-        { pid: 3, arrival: 1, burst: 2, priority: 1 },
-        { pid: 4, arrival: 2, burst: 12, priority: 3 },
-        { pid: 5, arrival: 3, burst: 4, priority: 2 },
-        { pid: 6, arrival: 4, burst: 1, priority: 1 }
-    ];
+    sample.processes.forEach(p => {
+        addProcessRow(p);
+        processIdCounter = Math.max(processIdCounter, p.pid + 1);
+    });
+    
+    showAlert(`${sample.name} loaded: ${sample.description}`, 'success');
+    
+    // Reset dropdown
+    select.value = '';
+}
+
+function loadSample() {
+    // Legacy function for backward compatibility - loads medium workload
+    clearProcesses();
+    processIdCounter = 1;
+    
+    const sampleProcesses = sampleWorkloads.medium.processes;
     
     sampleProcesses.forEach(p => {
         addProcessRow(p);

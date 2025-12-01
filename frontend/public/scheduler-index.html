@@ -71,9 +71,18 @@
                         <div class="table-header">
                             <h3><i class="fas fa-list"></i> Process List</h3>
                             <div class="table-actions">
-                                <button class="btn btn-secondary" onclick="loadSample()" data-testid="load-sample-btn">
-                                    <i class="fas fa-download"></i> Load Sample
-                                </button>
+                                <div class="form-group" style="margin: 0; min-width: 250px;">
+                                    <select id="sampleSelect" onchange="loadSelectedSample()" data-testid="sample-select" style="margin: 0;">
+                                        <option value="">-- Load Sample Data --</option>
+                                        <option value="light">Light Load (4 processes)</option>
+                                        <option value="medium">Medium Load (6 processes)</option>
+                                        <option value="heavy">Heavy Load (8 processes)</option>
+                                        <option value="mixed">Mixed Workload (10 processes)</option>
+                                        <option value="io_intensive">I/O Intensive (6 processes)</option>
+                                        <option value="cpu_intensive">CPU Intensive (5 processes)</option>
+                                        <option value="realtime">Real-Time Tasks (7 processes)</option>
+                                    </select>
+                                </div>
                                 <button class="btn btn-secondary" onclick="addProcess()" data-testid="add-process-btn">
                                     <i class="fas fa-plus"></i> Add Process
                                 </button>
