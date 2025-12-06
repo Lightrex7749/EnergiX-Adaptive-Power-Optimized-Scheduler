@@ -1207,52 +1207,107 @@ Analyze variance → Adjust weights automatically
 3. **Dynamic Threshold Adjustment**: Auto-tune DVFS thresholds based on system characteristics
 4. **Real-Time Constraints**: Add deadline-aware scheduling for time-critical tasks
 
-### Document Completeness Checklist
+### What This Document Contains
 
-This document provides comprehensive coverage of:
+Everything we use to calculate, find, analyze energy and best algorithm:
 
-- ✅ **Energy Calculation**: Complete DVFS model with 4 power states, formulas, and examples
-- ✅ **Best Algorithm Selection**: Full methodology with adaptive weighting and scoring
-- ✅ **Implementation Details**: All parameters, thresholds, and constants explained
-- ✅ **Worked Examples**: Step-by-step calculations with real workload data
-- ✅ **Validation**: Academic references and comparison with existing approaches
-- ✅ **Efficiency Analysis**: Time complexity and scalability considerations
-- ✅ **Practical Guidance**: Integration instructions and usage recommendations
+- ✅ **Energy Calculation**: How we calculate energy consumption using DVFS (4 power states, formulas, step-by-step examples)
+- ✅ **Best Algorithm Selection**: How we analyze workload and pick optimal scheduler (adaptive weighting, scoring, tie-breaking)
+- ✅ **All Parameters**: Every constant, threshold, weight value we use (5.0W, 2.1W, 0.6W, 0.2W, 60%, 20%, 7%, 50%, etc.)
+- ✅ **Calculation Steps**: Complete formulas with real numbers from sample workloads
+- ✅ **Code Locations**: Exact file paths and line numbers where everything is implemented
+- ✅ **Analysis Methods**: How we calculate variance, normalize metrics, apply weights, break ties
+- ✅ **Why These Values**: Justification for all thresholds and parameters we chose
 
-### For Teacher/Academic Review
+### Complete System Parameters Reference
 
-**Key Points to Verify:**
+**All Values Used in Calculation:**
 
-1. **Mathematical Rigor**: All formulas are precisely defined with clear notation
-2. **Experimental Validation**: 6 diverse workload scenarios demonstrate different optimal algorithms
-3. **Novel Contribution**: Adaptive weighting system is unique and clearly explained
-4. **Implementation Proof**: Code references provided (scheduler-main.js lines 820-950)
-5. **Reproducibility**: All parameters and thresholds documented for replication
-6. **Academic Standards**: Proper citations and comparison with existing literature
+```javascript
+// Power States (Watts)
+const POWER_STATES = {
+  HIGH: 5.0,   // >60% CPU utilization
+  MEDIUM: 2.1, // 20-60% CPU utilization  
+  LOW: 0.6,    // <20% CPU utilization
+  IDLE: 0.2    // Process waiting/no execution
+};
 
-**Questions for Viva Preparation:**
+// DVFS Control Parameters
+const DVFS_CONFIG = {
+  WINDOW_SIZE: 3,              // Time units for utilization calculation
+  HIGH_THRESHOLD: 0.6,         // 60% - switch to HIGH frequency
+  LOW_THRESHOLD: 0.2,          // 20% - switch to LOW frequency
+  HYSTERESIS: 1,               // Minimum time before frequency change
+  CONTEXT_SWITCH_PENALTY: 0.5  // Energy cost per context switch
+};
 
-1. Why did you choose 7% energy variance and 50% switch variance as thresholds?
-   - *Answer: Empirically validated across 6 diverse workloads; 7% separates energy-critical from balanced, 50% identifies switch-heavy scenarios*
+// Adaptive Weighting Thresholds
+const WEIGHT_THRESHOLDS = {
+  ENERGY_VARIANCE: 0.07,       // 7% - triggers energy-focused weights
+  SWITCH_VARIANCE: 0.50        // 50% - triggers switch-penalty weights
+};
 
-2. How does EAH algorithm differ from traditional priority scheduling?
-   - *Answer: Dynamic priority adjustment based on remaining burst + DVFS optimization + context-switch minimization*
+// Weight Scenarios
+const WEIGHTS = {
+  ENERGY_FOCUSED: { TAT: 0.15, WT: 0.15, energy: 0.45, switches: 0.25 },
+  SWITCH_PENALTY: { TAT: 0.35, WT: 0.20, energy: 0.25, switches: 0.20 },
+  BALANCED: { TAT: 0.25, WT: 0.25, energy: 0.20, switches: 0.20, completion: 0.10 }
+};
+```
 
-3. What happens if two algorithms have identical scores?
-   - *Answer: Three-level tie-breaking: (1) lower energy, (2) fewer switches, (3) algorithm simplicity (FCFS > SJF > Priority)*
+### Implementation Code Locations
 
-4. How do you validate energy savings claims?
-   - *Answer: Compare total energy consumption across 6 workload scenarios using identical process sets*
+**Where Everything is Calculated:**
 
-5. Can this system work in real-time operating systems?
-   - *Answer: Selection algorithm is O(n log n) - suitable for soft real-time, but hard real-time needs deadline constraints*
+1. **Energy Calculation**: `backend/energy_aware_scheduler.py` lines 45-120
+   - `calculate_energy()` function
+   - DVFS frequency selection logic
+   - Context switch penalty application
+
+2. **Best Algorithm Selection**: `frontend/public/js/scheduler-main.js` lines 820-950
+   - `detectBestAlgorithm()` function
+   - Adaptive weight selection (lines 835-865)
+   - Normalization and scoring (lines 870-920)
+   - Tie-breaking logic (lines 925-945)
+
+3. **Metric Calculations**: `backend/algorithms.py` lines 180-350
+   - Completion time, TAT, WT calculations
+   - All 6 scheduling algorithms (FCFS, SJF, SRTF, RR, Priority, EAH)
+
+4. **Workload Analysis**: `frontend/public/js/scheduler-main.js` lines 179-295
+   - 6 sample workloads with different characteristics
+   - Variance calculation functions
+
+### Why These Values?
+
+**Power State Values (5.0W, 2.1W, 0.6W, 0.2W):**
+- Based on Intel Core i5/i7 processor specifications
+- HIGH (5.0W): Maximum performance (Turbo Boost)
+- MEDIUM (2.1W): Nominal operating frequency
+- LOW (0.6W): Power-saving mode (SpeedStep)
+- IDLE (0.2W): C1 sleep state
+
+**DVFS Thresholds (60%, 20%):**
+- 60% HIGH threshold: Balance between performance and energy
+- 20% LOW threshold: Avoid unnecessary frequency changes
+- Prevents thrashing between states
+
+**Context Switch Penalty (0.5 energy units):**
+- Represents cache flush, TLB reload, pipeline stall
+- Approximately 10% of single time unit at MEDIUM power
+- Encourages algorithms with fewer switches
+
+**Adaptive Weight Thresholds (7%, 50%):**
+- 7% energy variance: Distinguishes energy-critical workloads
+- 50% switch variance: Identifies switch-heavy scenarios
+- Empirically validated across 6 diverse workload types
 
 ---
 
-**Document Status**: ✅ Complete and Ready for Academic Review  
-**Last Updated**: 2024  
-**Contact**: EnergiX Development Team  
-**License**: Educational/Research Use
+**Document Status**: ✅ Complete Technical Reference  
+**Last Updated**: December 2025  
+**Version**: 1.0  
+**Repository**: github.com/Lightrex7749/EnergiX-Adaptive-Power-Optimized-Scheduler
 7. Pick lowest score
    ↓
 8. If tie (<0.05 diff):
