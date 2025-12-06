@@ -1,7 +1,5 @@
 # EnergiX CPU Scheduler: Complete Technical Documentation
 
-## Energy Calculation & Best Algorithm Selection Methodology
-
 ---
 
 ## 🎯 Core Criteria, Metrics, and Algorithm Used in EnergiX
@@ -10,13 +8,13 @@
 
 EnergiX compares each scheduling algorithm using these five measurable metrics:
 
-| Metric | Meaning | Why It Matters |
-|--------|---------|----------------|
-| **Completion Time (CT)** | Total time taken to finish all processes | Measures throughput |
-| **Average Turnaround Time (TAT)** | Time from arrival to completion | Standard academic performance metric |
-| **Average Waiting Time (WT)** | Time spent waiting in ready queue | Measures efficiency of scheduler |
-| **Context Switch Count (CS)** | Number of CPU switches | Higher switches → more overhead |
-| **Total Energy Consumption (E)** | Power × time + switch penalty | Measures energy efficiency |
+| Metric | Unit | Formula | Why It Matters |
+|--------|------|---------|----------------|
+| **Completion Time (CT)** | time units | `Last_Finish_Time - First_Arrival_Time` | Measures throughput |
+| **Average Turnaround Time (TAT)** | time units | `Σ(Completion_Time - Arrival_Time) / n` | Standard academic performance metric |
+| **Average Waiting Time (WT)** | time units | `Σ(TAT - Burst_Time) / n` | Measures efficiency of scheduler |
+| **Context Switch Count (CS)** | count | `Number of process transitions` | Higher switches → more overhead |
+| **Total Energy Consumption (E)** | energy units | `Σ(Power × Duration) + (CS × 0.5)` | Measures energy efficiency |
 
 These five metrics are the exact criteria on which EnergiX evaluates algorithms.
 
@@ -40,47 +38,65 @@ This provides objective energy comparison.
 
 EnergiX uses a **4-step scoring algorithm** to determine the best scheduling method:
 
-#### Step 1 — Run all 6 algorithms
-
-For each algorithm compute:
-- CT
-- Avg TAT
-- Avg WT
-- CS
-- Energy
-
-#### Step 2 — Normalize each metric
 ```
-normalized = value / best_value_in_that_metric
-```
+Algorithm: EnergiX_SelectBestScheduler(processes)
 
-Best metric → becomes 1.0.
+Input: Set of processes P = {P1, P2, ..., Pn}
+Output: Best scheduling algorithm for workload
 
-#### Step 3 — Weighted scoring
+1. For each algorithm A in {FCFS, SJF, SRTF, RR, Priority, EAH}:
+       Run algorithm A on processes P
+       Compute metrics:
+           CT[A] = Completion Time
+           TAT[A] = Average Turnaround Time
+           WT[A] = Average Waiting Time
+           CS[A] = Context Switch Count
+           Energy[A] = Total Energy Consumption
 
-EnergiX chooses one of three weighting schemes:
-- **Energy-focused** (if energy variance is high)
-- **Switch-focused** (if context switches vary greatly)
-- **Balanced** (default case)
+2. Normalize all metrics:
+       For each metric M in {CT, TAT, WT, CS, Energy}:
+           best_value[M] = min(M[A] for all A)
+           For each algorithm A:
+               norm[M][A] = M[A] / best_value[M]
 
-Score is computed as:
-```
-Final Score = Σ(normalized_metric × metric_weight)
-```
+3. Compute variance and select weights:
+       energyRange = max(Energy) - min(Energy)
+       energyVar = energyRange / max(Energy)
+       
+       switchRange = max(CS) - min(CS)
+       switchVar = switchRange / max(CS)
+       
+       If energyVar > 0.07:
+           weights = {CT: 0.10, TAT: 0.15, WT: 0.15, Energy: 0.45, CS: 0.15}
+       Else if switchVar > 0.50:
+           weights = {CT: 0.10, TAT: 0.35, WT: 0.30, Energy: 0.10, CS: 0.15}
+       Else:
+           weights = {CT: 0.20, TAT: 0.25, WT: 0.25, Energy: 0.20, CS: 0.10}
 
-#### Step 4 — Select algorithm with lowest score
+4. Calculate weighted score for each algorithm:
+       For each algorithm A:
+           Score[A] = Σ(norm[M][A] × weights[M]) for all metrics M
+       
+       best = algorithm with minimum Score[A]
 
-**Lowest score = best algorithm for that workload.**
+5. Apply tie-breaking rules:
+       For all algorithms A where |Score[A] - Score[best]| < 0.05:
+           If Energy[A] ≠ Energy[best]:
+               best = algorithm with min(Energy)
+           Else if CS[A] ≠ CS[best]:
+               best = algorithm with min(CS)
+           Else:
+               best = algorithm with highest simplicity rank
 
-### 4. Final Decision Rule
+6. Return best
 
-```
-If score difference < 0.05:
-    1. Choose lower energy algorithm
-    2. If equal → choose lower context switches
-    3. If still equal → choose simpler algorithm (FCFS > SJF > Priority > EAH)
-Else:
-    Choose algorithm with lowest score
+Simplicity Ranking:
+    FCFS = 6 (simplest)
+    SJF Non-Preemptive = 5
+    Priority Non-Preemptive = 4
+    EAH = 3
+    Round Robin = 2
+    SRTF = 1 (most complex)
 ```
 
 ---
@@ -1389,46 +1405,3 @@ const WEIGHTS = {
 **Last Updated**: December 6, 2025  
 **Version**: 1.0  
 **Repository**: github.com/Lightrex7749/EnergiX-Adaptive-Power-Optimized-Scheduler
-7. Pick lowest score
-   ↓
-8. If tie (<0.05 diff):
-   - Tiebreak by energy
-   - Then by switches
-   - Then by simplicity
-   ↓
-9. Declare best algorithm 🏆
-```
-
-### Metrics & Weights Reference
-
-| Metric | Unit | Lower is Better | Typical Range |
-|--------|------|-----------------|---------------|
-| Completion Time | time units | ✅ | 10-100 |
-| Avg Turnaround | time units | ✅ | 5-50 |
-| Avg Waiting | time units | ✅ | 0-30 |
-| Total Energy | energy units | ✅ | 50-200 |
-| Context Switches | count | ✅ | 3-20 |
-
-### Weight Scenarios
-
-| Scenario | Completion | TAT | WT | Energy | Switches |
-|----------|------------|-----|----|----|----------|
-| **High Energy Variance** | 10% | 15% | 15% | **45%** | 15% |
-| **High Switch Variance** | 10% | **35%** | **30%** | 10% | 15% |
-| **Balanced** | 20% | 25% | 25% | 20% | 10% |
-
----
-
-## Conclusion
-
-Our best algorithm selection methodology is efficient because:
-
-1. ✅ **Adaptive** - Adjusts to workload characteristics
-2. ✅ **Multi-dimensional** - Considers 5 key metrics
-3. ✅ **Energy-aware** - Prioritizes energy when it matters
-4. ✅ **Academically sound** - Respects proven optimality
-5. ✅ **Computationally efficient** - O(n×m) complexity
-6. ✅ **Practical** - Based on empirical thresholds
-7. ✅ **Transparent** - Clear decision logic with tie-breaking
-
-**Result:** The system automatically finds the best scheduling algorithm for any given workload, balancing performance and energy efficiency without user intervention.
