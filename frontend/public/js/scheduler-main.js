@@ -177,112 +177,118 @@ function getProcesses() {
  * Sample Workloads - 10 strategically designed scenarios where different algorithms win
  */
 const sampleWorkloads = {
-    fcfs1: {
-        name: 'Sequential Optimal - FCFS Wins',
-        description: 'Arrivals naturally ordered, overhead of reordering not justified',
+    default: {
+        name: 'Default Workload',
+        description: 'General purpose balanced workload',
         processes: [
-            { pid: 1, arrival: 0, burst: 3, priority: 3 },
-            { pid: 2, arrival: 4, burst: 5, priority: 3 },
-            { pid: 3, arrival: 10, burst: 4, priority: 3 }
+            { pid: 1, arrival: 0, burst: 5, priority: 2 },
+            { pid: 2, arrival: 1, burst: 3, priority: 1 },
+            { pid: 3, arrival: 2, burst: 8, priority: 3 },
+            { pid: 4, arrival: 3, burst: 6, priority: 2 }
         ]
     },
-    sjf1: {
-        name: 'Burst Disparity - SJF Wins',
-        description: 'Massive burst time differences favor shortest-first',
+    fcfs_optimal: {
+        name: 'FCFS Optimal - Sequential Perfect Order',
+        description: 'Processes arrive naturally ordered by burst time - no reordering benefit',
         processes: [
-            { pid: 1, arrival: 0, burst: 25, priority: 3 },
-            { pid: 2, arrival: 0, burst: 1, priority: 3 },
-            { pid: 3, arrival: 0, burst: 2, priority: 3 },
-            { pid: 4, arrival: 0, burst: 18, priority: 3 },
-            { pid: 5, arrival: 0, burst: 3, priority: 3 }
+            { pid: 1, arrival: 0, burst: 2, priority: 3 },
+            { pid: 2, arrival: 3, burst: 4, priority: 3 },
+            { pid: 3, arrival: 8, burst: 6, priority: 3 },
+            { pid: 4, arrival: 15, burst: 8, priority: 3 }
         ]
     },
-    srtf1: {
-        name: 'Late Short Jobs - SRTF Wins',
-        description: 'Short processes arrive during long execution, preemption critical',
+    sjf_optimal: {
+        name: 'SJF Optimal - Extreme Burst Disparity',
+        description: 'Huge variance in burst times - shortest-first minimizes average wait',
         processes: [
-            { pid: 1, arrival: 0, burst: 18, priority: 3 },
+            { pid: 1, arrival: 0, burst: 1, priority: 3 },
+            { pid: 2, arrival: 0, burst: 2, priority: 3 },
+            { pid: 3, arrival: 0, burst: 3, priority: 3 },
+            { pid: 4, arrival: 0, burst: 15, priority: 3 },
+            { pid: 5, arrival: 0, burst: 20, priority: 3 }
+        ]
+    },
+    srtf_optimal: {
+        name: 'SRTF Optimal - Late Short Arrivals',
+        description: 'Long process running when very short tasks arrive - preemption crucial',
+        processes: [
+            { pid: 1, arrival: 0, burst: 20, priority: 3 },
             { pid: 2, arrival: 2, burst: 1, priority: 3 },
             { pid: 3, arrival: 5, burst: 1, priority: 3 },
-            { pid: 4, arrival: 8, burst: 2, priority: 3 }
+            { pid: 4, arrival: 8, burst: 2, priority: 3 },
+            { pid: 5, arrival: 10, burst: 1, priority: 3 }
         ]
     },
-    rr1: {
-        name: 'Interactive Fairness Test',
-        description: 'Long first process + short late arrivals - RR prevents starvation',
+    rr_optimal: {
+        name: 'RR Optimal - Interactive Response Time',
+        description: 'Similar burst times - RR ensures fairness and good response time',
         processes: [
-            { pid: 1, arrival: 0, burst: 30, priority: 3 },
-            { pid: 2, arrival: 2, burst: 4, priority: 3 },
-            { pid: 3, arrival: 4, burst: 4, priority: 3 },
-            { pid: 4, arrival: 6, burst: 4, priority: 3 },
-            { pid: 5, arrival: 8, burst: 4, priority: 3 }
+            { pid: 1, arrival: 0, burst: 10, priority: 3 },
+            { pid: 2, arrival: 0, burst: 10, priority: 3 },
+            { pid: 3, arrival: 0, burst: 10, priority: 3 },
+            { pid: 4, arrival: 0, burst: 10, priority: 3 },
+            { pid: 5, arrival: 0, burst: 10, priority: 3 }
         ]
     },
-    priority1: {
-        name: 'Urgent Task Test',
-        description: 'Low-priority long tasks start, then critical short tasks arrive during execution',
+    priority_optimal: {
+        name: 'Priority Optimal - Critical Tasks Arrive',
+        description: 'Low-priority task running when critical tasks arrive - preemption essential',
         processes: [
-            { pid: 1, arrival: 0, burst: 15, priority: 5 },  // Low priority starts first
-            { pid: 2, arrival: 2, burst: 2, priority: 1 },   // Critical arrives during P1
-            { pid: 3, arrival: 0, burst: 15, priority: 5 },  // Low priority
-            { pid: 4, arrival: 5, burst: 2, priority: 1 },   // Critical arrives later
-            { pid: 5, arrival: 3, burst: 3, priority: 2 }    // High priority arrives
+            { pid: 1, arrival: 0, burst: 25, priority: 5 },  // Low priority long task
+            { pid: 2, arrival: 3, burst: 3, priority: 1 },   // Critical arrives
+            { pid: 3, arrival: 8, burst: 2, priority: 1 },   // Critical arrives
+            { pid: 4, arrival: 12, burst: 4, priority: 2 },  // High priority
+            { pid: 5, arrival: 0, burst: 20, priority: 5 }   // Low priority long task
         ]
     },
-    eah1: {
-        name: 'Energy Optimization Test',
-        description: 'Extreme mix of tiny and huge tasks - tests DVFS energy savings potential',
+    eah_optimal: {
+        name: 'EAH Optimal - Energy-Aware Mix',
+        description: 'Mix of short and long tasks with high energy variance - EAH saves energy',
         processes: [
-            { pid: 1, arrival: 0, burst: 1, priority: 3 },   // Tiny - low freq
-            { pid: 2, arrival: 0, burst: 1, priority: 3 },   // Tiny - low freq
-            { pid: 3, arrival: 0, burst: 1, priority: 3 },   // Tiny - low freq
-            { pid: 4, arrival: 0, burst: 25, priority: 3 },  // Huge - high freq
-            { pid: 5, arrival: 0, burst: 25, priority: 3 },  // Huge - high freq
-            { pid: 6, arrival: 0, burst: 2, priority: 3 }    // Small - low freq
+            { pid: 1, arrival: 0, burst: 1, priority: 3 },   // Short - low freq
+            { pid: 2, arrival: 0, burst: 1, priority: 3 },   // Short - low freq
+            { pid: 3, arrival: 0, burst: 30, priority: 3 },  // Long - high freq
+            { pid: 4, arrival: 0, burst: 2, priority: 3 },   // Short - low freq
+            { pid: 5, arrival: 0, burst: 28, priority: 3 },  // Long - high freq
+            { pid: 6, arrival: 0, burst: 1, priority: 3 }    // Short - low freq
         ]
     },
-    rr2: {
-        name: 'Convoy Effect Test',
-        description: 'Multiple varying burst times - RR provides balanced response',
+    heavy_workload: {
+        name: 'Heavy Server Workload',
+        description: 'Long-running CPU-intensive tasks',
         processes: [
-            { pid: 1, arrival: 0, burst: 15, priority: 3 },
-            { pid: 2, arrival: 0, burst: 8, priority: 3 },
-            { pid: 3, arrival: 0, burst: 6, priority: 3 },
-            { pid: 4, arrival: 0, burst: 4, priority: 3 },
-            { pid: 5, arrival: 0, burst: 3, priority: 3 }
+            { pid: 1, arrival: 0, burst: 15, priority: 2 },
+            { pid: 2, arrival: 0, burst: 18, priority: 3 },
+            { pid: 3, arrival: 2, burst: 12, priority: 2 },
+            { pid: 4, arrival: 3, burst: 20, priority: 1 }
         ]
     },
-    priority2: {
-        name: 'Emergency Response Test',
-        description: 'Long background tasks interrupted by arriving emergency high-priority tasks',
+    light_workload: {
+        name: 'Light Mobile Workload',
+        description: 'Quick UI interactions and background tasks',
         processes: [
-            { pid: 1, arrival: 0, burst: 20, priority: 5 },  // Long background task
-            { pid: 2, arrival: 3, burst: 1, priority: 1 },   // Emergency arrives
-            { pid: 3, arrival: 0, burst: 20, priority: 5 },  // Long background task
-            { pid: 4, arrival: 7, burst: 1, priority: 1 },   // Another emergency
-            { pid: 5, arrival: 10, burst: 2, priority: 2 }   // High priority task
-        ]
-    },
-    fcfs2: {
-        name: 'Arrival Order Perfect - FCFS Wins',
-        description: 'Natural order already optimal, no reordering gain',
-        processes: [
-            { pid: 1, arrival: 0, burst: 3, priority: 3 },
-            { pid: 2, arrival: 4, burst: 5, priority: 3 },
-            { pid: 3, arrival: 10, burst: 7, priority: 3 }
-        ]
-    },
-    eah2: {
-        name: 'Mobile Device Test',
-        description: 'Mobile scenario with many UI tasks and few heavy background tasks',
-        processes: [
-            { pid: 1, arrival: 0, burst: 1, priority: 3 },   // UI tap
-            { pid: 2, arrival: 0, burst: 1, priority: 3 },   // UI tap
+            { pid: 1, arrival: 0, burst: 1, priority: 1 },   // UI tap
+            { pid: 2, arrival: 1, burst: 2, priority: 2 },   // Background
+            { pid: 3, arrival: 2, burst: 1, priority: 1 },   // UI tap
+            { pid: 4, arrival: 4, burst: 3, priority: 3 },   // Background
+            { pid: 5, arrival: 5, burst: 1, priority: 1 },   // UI tap
+            { pid: 6, arrival: 7, burst: 2, priority: 2 }    // Background
             { pid: 3, arrival: 0, burst: 1, priority: 3 },   // UI tap
             { pid: 4, arrival: 0, burst: 1, priority: 3 },   // UI tap
             { pid: 5, arrival: 0, burst: 30, priority: 3 },  // Video render
             { pid: 6, arrival: 0, burst: 30, priority: 3 },  // File sync
             { pid: 7, arrival: 0, burst: 2, priority: 3 }    // Notification
+        ]
+    },
+    mixed_priorities: {
+        name: 'Mixed Priority System',
+        description: 'Combination of critical, normal, and background tasks',
+        processes: [
+            { pid: 1, arrival: 0, burst: 8, priority: 3 },   // Background
+            { pid: 2, arrival: 2, burst: 4, priority: 1 },   // Critical
+            { pid: 3, arrival: 3, burst: 6, priority: 2 },   // Normal
+            { pid: 4, arrival: 5, burst: 3, priority: 1 },   // Critical
+            { pid: 5, arrival: 7, burst: 10, priority: 3 }   // Background
         ]
     }
 };
@@ -473,11 +479,11 @@ function updateCurrentSampleDisplay(name, description) {
 }
 
 function loadSample() {
-    // Legacy function for backward compatibility - loads medium workload
+    // Legacy function for backward compatibility - loads default workload
     clearProcesses();
     processIdCounter = 1;
     
-    const sampleProcesses = sampleWorkloads.medium.processes;
+    const sampleProcesses = sampleWorkloads.default.processes;
     
     sampleProcesses.forEach(p => {
         addProcessRow(p);
