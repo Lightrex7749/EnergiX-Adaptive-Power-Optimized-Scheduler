@@ -38,6 +38,8 @@ This provides objective energy comparison.
 
 EnergiX uses a **4-step scoring algorithm** to determine the best scheduling method:
 
+**Pseudocode: Best Algorithm Selection Procedure**
+
 ```
 Algorithm: EnergiX_SelectBestScheduler(processes)
 
@@ -139,7 +141,7 @@ This document provides a comprehensive explanation of:
 
 ---
 
-## Part I: Energy Calculation Model
+## Part I: Energy Calculation Model (Detailed)
 
 ### Overview
 
@@ -1346,9 +1348,9 @@ const WEIGHT_THRESHOLDS = {
 
 // Weight Scenarios
 const WEIGHTS = {
-  ENERGY_FOCUSED: { TAT: 0.15, WT: 0.15, energy: 0.45, switches: 0.25 },
-  SWITCH_PENALTY: { TAT: 0.35, WT: 0.20, energy: 0.25, switches: 0.20 },
-  BALANCED: { TAT: 0.25, WT: 0.25, energy: 0.20, switches: 0.20, completion: 0.10 }
+  ENERGY_FOCUSED: { CT: 0.10, TAT: 0.15, WT: 0.15, energy: 0.45, switches: 0.15 },
+  SWITCH_PENALTY: { CT: 0.10, TAT: 0.35, WT: 0.30, energy: 0.10, switches: 0.15 },
+  BALANCED: { CT: 0.20, TAT: 0.25, WT: 0.25, energy: 0.20, switches: 0.10 }
 };
 ```
 
