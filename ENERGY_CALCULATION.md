@@ -4,6 +4,87 @@
 
 ---
 
+## 🎯 Core Criteria, Metrics, and Algorithm Used in EnergiX
+
+### 1. Evaluation Criteria (The 5 Metrics EnergiX Uses)
+
+EnergiX compares each scheduling algorithm using these five measurable metrics:
+
+| Metric | Meaning | Why It Matters |
+|--------|---------|----------------|
+| **Completion Time (CT)** | Total time taken to finish all processes | Measures throughput |
+| **Average Turnaround Time (TAT)** | Time from arrival to completion | Standard academic performance metric |
+| **Average Waiting Time (WT)** | Time spent waiting in ready queue | Measures efficiency of scheduler |
+| **Context Switch Count (CS)** | Number of CPU switches | Higher switches → more overhead |
+| **Total Energy Consumption (E)** | Power × time + switch penalty | Measures energy efficiency |
+
+These five metrics are the exact criteria on which EnergiX evaluates algorithms.
+
+### 2. Energy Model (Simplified DVFS Criteria)
+
+EnergiX uses a **4-state DVFS model**:
+
+- **HIGH** (5.0 W)
+- **MED** (2.1 W)
+- **LOW** (0.6 W)
+- **IDLE** (0.2 W)
+
+**Energy formula:**
+```
+Energy = Σ(Power_state × Duration) + (Context_Switches × 0.5)
+```
+
+This provides objective energy comparison.
+
+### 3. Algorithm Used for Selecting the Best Scheduler
+
+EnergiX uses a **4-step scoring algorithm** to determine the best scheduling method:
+
+#### Step 1 — Run all 6 algorithms
+
+For each algorithm compute:
+- CT
+- Avg TAT
+- Avg WT
+- CS
+- Energy
+
+#### Step 2 — Normalize each metric
+```
+normalized = value / best_value_in_that_metric
+```
+
+Best metric → becomes 1.0.
+
+#### Step 3 — Weighted scoring
+
+EnergiX chooses one of three weighting schemes:
+- **Energy-focused** (if energy variance is high)
+- **Switch-focused** (if context switches vary greatly)
+- **Balanced** (default case)
+
+Score is computed as:
+```
+Final Score = Σ(normalized_metric × metric_weight)
+```
+
+#### Step 4 — Select algorithm with lowest score
+
+**Lowest score = best algorithm for that workload.**
+
+### 4. Final Decision Rule
+
+```
+If score difference < 0.05:
+    1. Choose lower energy algorithm
+    2. If equal → choose lower context switches
+    3. If still equal → choose simpler algorithm (FCFS > SJF > Priority > EAH)
+Else:
+    Choose algorithm with lowest score
+```
+
+---
+
 ## 📋 Table of Contents
 
 ### Part I: Energy Calculation Model
@@ -1305,7 +1386,7 @@ const WEIGHTS = {
 ---
 
 **Document Status**: ✅ Complete Technical Reference  
-**Last Updated**: December 2025  
+**Last Updated**: December 6, 2025  
 **Version**: 1.0  
 **Repository**: github.com/Lightrex7749/EnergiX-Adaptive-Power-Optimized-Scheduler
 7. Pick lowest score
