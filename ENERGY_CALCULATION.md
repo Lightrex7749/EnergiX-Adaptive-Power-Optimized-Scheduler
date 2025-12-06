@@ -106,6 +106,7 @@ Simplicity Ranking:
 ## 📋 Table of Contents
 
 ### Part I: Energy Calculation Model
+
 1. [Power States and Parameters](#power-states-and-parameters)
 2. [Energy Calculation Components](#energy-calculation-components)
 3. [DVFS Algorithm](#dvfs-dynamic-voltage-frequency-scaling)
@@ -113,6 +114,7 @@ Simplicity Ranking:
 5. [Algorithm Energy Comparison](#algorithm-comparison-energy-impact)
 
 ### Part II: Best Algorithm Selection
+
 6. [Metrics Used for Comparison](#metrics-used-for-comparison)
 7. [Adaptive Weighting System](#adaptive-weighting-system)
 8. [Workload Analysis Algorithm](#workload-analysis-algorithm)
@@ -121,7 +123,8 @@ Simplicity Ranking:
 11. [Efficiency Analysis](#why-this-method-is-efficient)
 
 ### Part III: Academic Foundation
-12. [Parameter Summary](#parameters-summary)
+
+12. [Parameters Summary](#parameters-summary)
 13. [Validation and References](#validation-and-references)
 14. [Complete Example with All Steps](#complete-algorithm-selection-example)
 
@@ -764,26 +767,9 @@ Based on variance analysis, select appropriate weights:
 
 **Condition:** `energyVariance > 0.07`
 
-**Weights:**
-```javascript
-{
-  completion: 10%,
-  turnaround: 15%,
-  waiting: 15%,
-  energy: 45%,      // ← Energy becomes dominant!
-  switches: 15%
-}
-```
+**Weights:** `{CT: 10%, TAT: 15%, WT: 15%, Energy: 45%, CS: 15%}`
 
-**Reasoning:**
-- Energy differences are significant between algorithms
-- Energy optimization should be prioritized
-- EAH/low-energy algorithms favored
-
-**When this happens:**
-- Mix of short and long processes (1, 1, 30, 30)
-- High DVFS variance
-- EAH typically wins
+**Reasoning:** Energy differences are significant → prioritize energy optimization → EAH typically wins
 
 ---
 
@@ -791,27 +777,9 @@ Based on variance analysis, select appropriate weights:
 
 **Condition:** `switchVariance > 0.50 AND energyVariance ≤ 0.07`
 
-**Weights:**
-```javascript
-{
-  completion: 10%,
-  turnaround: 35%,   // ← Turnaround emphasized
-  waiting: 30%,      // ← Waiting time matters
-  energy: 10%,
-  switches: 15%
-}
-```
+**Weights:** `{CT: 10%, TAT: 35%, WT: 30%, Energy: 10%, CS: 15%}`
 
-**Reasoning:**
-- Context switches vary dramatically
-- Preemptive algorithms have high overhead
-- Non-preemptive algorithms (FCFS, SJF) favored
-- Turnaround/waiting time more important than energy
-
-**When this happens:**
-- Mix of preemptive and non-preemptive results
-- Switch overhead dominates performance
-- SJF/FCFS typically win
+**Reasoning:** Context switches vary dramatically → emphasize TAT/WT → SJF/FCFS typically win
 
 ---
 
@@ -819,27 +787,9 @@ Based on variance analysis, select appropriate weights:
 
 **Condition:** Both variances below thresholds
 
-**Weights:**
-```javascript
-{
-  completion: 20%,
-  turnaround: 25%,   // ← Slightly higher (academic focus)
-  waiting: 25%,      // ← Equal to turnaround
-  energy: 20%,
-  switches: 10%
-}
-```
+**Weights:** `{CT: 20%, TAT: 25%, WT: 25%, Energy: 20%, CS: 10%}`
 
-**Reasoning:**
-- No single metric dominates
-- Traditional academic focus on TAT/WT
-- Balanced comparison
-- SJF often wins (mathematically optimal)
-
-**When this happens:**
-- Similar burst times
-- Moderate energy consumption
-- Most academic test cases
+**Reasoning:** No single metric dominates → balanced comparison → SJF often wins (mathematically optimal)
 
 ---
 
