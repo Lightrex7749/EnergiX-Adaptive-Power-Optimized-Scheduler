@@ -500,8 +500,8 @@ curl -X POST http://localhost:8001/api/all \
 
 ## 👥 Contributors
 
-- **Student Name**: [Your Name]
-- **Roll Number**: [Your Roll Number]
+- **Names**: Gaurav Rajhbhar and Sarthak Pandey
+- **Roll Numbers**: 64 and 66
 - **Course**: Operating Systems
 - **Academic Year**: 2025
 
