@@ -84,16 +84,12 @@
                                 <div class="form-group" style="margin: 0; min-width: 250px;">
                                     <select id="sampleSelect" onchange="loadSelectedSample()" data-testid="sample-select" style="margin: 0;">
                                         <option value="">📊 Load Sample Workload</option>
-                                        <option value="default">📋 Default Workload</option>
-                                        <option value="fcfs_optimal">🔵 FCFS Optimal - Sequential</option>
-                                        <option value="sjf_optimal">🟢 SJF Optimal - Burst Disparity</option>
-                                        <option value="srtf_optimal">🟡 SRTF Optimal - Late Arrivals</option>
-                                        <option value="rr_optimal">🔴 RR Optimal - Fairness Test</option>
-                                        <option value="priority_optimal">🟣 Priority Optimal - Critical Tasks</option>
-                                        <option value="eah_optimal">⚡ EAH Optimal - Energy Saver</option>
-                                        <option value="heavy_workload">💪 Heavy Server Load</option>
-                                        <option value="light_workload">📱 Light Mobile Load</option>
-                                        <option value="mixed_priorities">🎯 Mixed Priorities</option>
+                                        <option value="balanced">⚖️ Balanced Workload</option>
+                                        <option value="short_processes">⚡ Short Processes</option>
+                                        <option value="long_burst">⏱️ Long Burst Times</option>
+                                        <option value="equal_burst">🟰 Equal Burst Times</option>
+                                        <option value="heavy_load">💪 Heavy Load</option>
+                                        <option value="mixed_priority">🎯 Mixed Priorities</option>
                                     </select>
                                 </div>
                                 <button class="btn btn-secondary" onclick="addProcess()" data-testid="add-process-btn">
